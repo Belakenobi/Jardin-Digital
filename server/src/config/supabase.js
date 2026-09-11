@@ -10,11 +10,32 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
-const supabase = createClient(supabaseUrl, supabasePublishableKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-});
+const authOptions = {
+  persistSession: false,
+  autoRefreshToken: false,
+  detectSessionInUrl: false,
+};
+
+export function createSupabaseClient(accessToken = null) {
+  const options = {
+    auth: authOptions,
+  };
+
+  if (accessToken) {
+    options.global = {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+  }
+
+  return createClient(
+    supabaseUrl,
+    supabasePublishableKey,
+    options
+  );
+}
+
+const supabase = createSupabaseClient();
 
 export default supabase;

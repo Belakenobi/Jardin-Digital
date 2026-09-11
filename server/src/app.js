@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
 import supabase from "./config/supabase.js";
+import authRoutes from "./routes/auth.routes.js";
+import { errorHandler } from "./middleware/error.middleware.js";
+
+
+
 
 const app = express();
 
@@ -13,6 +18,9 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+
 
 app.get("/api/health", (_request, response) => {
   return response.status(200).json({
@@ -57,5 +65,8 @@ app.use((_request, response) => {
     message: "Endpoint not found",
   });
 });
+
+app.use(errorHandler);
+
 
 export default app;
