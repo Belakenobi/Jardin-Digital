@@ -71,3 +71,33 @@ export function validateRegistration(body = {}) {
     },
   };
 }
+
+export function validateLogin(body = {}) {
+  const errors = {};
+
+  const emailError = validateEmail(body.email);
+
+  if (emailError) {
+    errors.email = emailError;
+  }
+
+  if (
+    typeof body.password !== "string" ||
+    body.password === ""
+  ) {
+    errors.password = "Password is required";
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    data: {
+      email: typeof body.email === "string"
+        ? body.email.trim().toLowerCase()
+        : "",
+      password: typeof body.password === "string"
+        ? body.password
+        : "",
+    },
+  };
+}

@@ -1,5 +1,15 @@
-import { registerUser } from "../services/auth.service.js";
-import { validateRegistration } from "../validators/auth.validator.js";
+
+import {
+  loginUser,
+  registerUser,
+} from "../services/auth.service.js";
+
+import {
+  validateLogin,
+  validateRegistration,
+} from "../validators/auth.validator.js";
+
+
 
 function formatSession(session) {
   if (!session) {
@@ -42,6 +52,46 @@ export async function register(request, response, next) {
           : null,
         session: formatSession(session),
         requiresEmailConfirmation: !session,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+export async function login(request, response, next) {
+  const validation = validateLogin(request.body);
+
+  if (!validation.isValid) {
+    return response.status(400).json({
+      status: "error",
+      message: "Invalid login data",
+      errors: validation.errors,
+    });
+  }
+
+  try {
+    const { user, session } =
+      await loginUser(validation.data);
+
+    if (!user || !session) {
+      const error = new Error(
+        "Authentication session was not created"
+      );
+
+      error.status = 500;
+
+      throw error;
+    }
+
+    return response.status(200).json({
+      status: "success",
+      message: "Login successful",
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+        session: formatSession(session),
       },
     });
   } catch (error) {
