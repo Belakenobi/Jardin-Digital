@@ -98,3 +98,22 @@ export async function login(request, response, next) {
     return next(error);
   }
 }
+
+export function getCurrentUser(request, response) {
+  return response.status(200).json({
+    status: "success",
+    data: {
+      user: request.user,
+    },
+  });
+}
+
+export function getAdminAccess(request, response) {
+  return response.status(200).json({
+    status: "success",
+    message: "Administrator access granted",
+    data: {
+      user: request.user,
+    },
+  });
+}
