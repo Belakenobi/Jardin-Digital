@@ -14,6 +14,9 @@ build/
 coverage/
 .nyc_output/
 
+# Contexto maestro (no subir a GitHub)
+CONTEXTO_MAESTRO_*.txt
+
 # Registros
 logs/
 *.log
