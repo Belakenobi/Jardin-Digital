@@ -96,3 +96,8 @@ Se utilizaron las nuevas llaves Publishable de Supabase en lugar de las llaves l
 
 ### Aprendizaje
 Comprendí la función de Node.js, Express, las variables de entorno, CORS y la conexión entre el backend y Supabase.
+
+
+## 11 de septiembre de 2026 — Dockerización del backend
+
+Se creó y probó una imagen Docker del backend Express. El contenedor utilizó Node.js 24, dependencias de producción, ejecución sin privilegios administrativos y una comprobación automática de salud. La API y la conexión con Supabase funcionaron correctamente desde el contenedor.
