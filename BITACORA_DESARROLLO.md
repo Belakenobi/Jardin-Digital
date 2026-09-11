@@ -101,3 +101,63 @@ Comprendí la función de Node.js, Express, las variables de entorno, CORS y la 
 ## 11 de septiembre de 2026 — Dockerización del backend
 
 Se creó y probó una imagen Docker del backend Express. El contenedor utilizó Node.js 24, dependencias de producción, ejecución sin privilegios administrativos y una comprobación automática de salud. La API y la conexión con Supabase funcionaron correctamente desde el contenedor.
+
+## 11 de septiembre de 2026 — Módulo 3: Autenticación y autorización
+
+### Objetivo
+Implementar el registro e inicio de sesión de usuarios mediante Supabase Auth, proteger rutas con JWT y establecer autorización basada en los roles `user` y `admin`.
+
+### Trabajo realizado
+- Se creó la estructura modular de rutas, controladores, servicios, validadores y middleware.
+- Se implementó el registro mediante email y contraseña.
+- Se validaron el nombre, correo y contraseña antes de enviar los datos a Supabase.
+- Se conectó el registro con el trigger de creación automática de perfiles.
+- Se implementó el inicio de sesión mediante Supabase Auth.
+- Se devolvieron el access token y refresh token necesarios para administrar la sesión.
+- Se creó un middleware que obtiene el JWT del encabezado `Authorization`.
+- Se validó el JWT mediante Supabase Auth.
+- Se consultó el perfil del usuario autenticado para recuperar su nombre y rol.
+- Se creó middleware de autorización para restringir rutas según el rol.
+- Se implementaron las rutas protegidas `/api/auth/me` y `/api/auth/admin/check`.
+- Se configuró a la creadora del proyecto con el rol `admin`.
+- Se agregó manejo centralizado de errores.
+- Se desactivó el encabezado `X-Powered-By` para evitar revelar Express.
+- Se configuró una clave secreta exclusivamente en el backend y se comprobó que `.env` permanece fuera de Git y Docker.
+
+### Pruebas realizadas
+- Registro con datos inválidos.
+- Registro válido con respuesta `201 Created`.
+- Creación automática del perfil con el mismo UUID de `auth.users`.
+- Login con datos inválidos.
+- Login con contraseña incorrecta.
+- Login exitoso y generación de tokens.
+- Acceso sin JWT con respuesta `401 Unauthorized`.
+- Acceso con JWT falso con respuesta `401 Unauthorized`.
+- Acceso con JWT válido a una ruta protegida.
+- Intento de un usuario normal de acceder a una ruta administrativa con respuesta `403 Forbidden`.
+- Acceso exitoso con rol `admin`.
+- Construcción y ejecución del backend actualizado dentro de Docker.
+- Verificación de que `.env` no está incluido en la imagen Docker.
+- Revisión de permisos PostgreSQL para impedir que un usuario modifique su propio rol.
+
+### Problemas encontrados
+El enlace inicial de confirmación redirigía al puerto 3000 y había expirado. Se corrigió la Site URL de Supabase para utilizar el puerto 5173 del futuro frontend. El servicio SMTP integrado también presentó limitaciones de envío, por lo que la cuenta de desarrollo se confirmó mediante una operación administrativa segura desde el backend.
+
+Durante una prueba se utilizó accidentalmente sintaxis de Fish dentro de Zsh. El problema se corrigió utilizando sustitución de comandos compatible con Zsh.
+
+### Decisiones
+- Utilizar la clave publicable para registro, login y operaciones sujetas a RLS.
+- Reservar la clave secreta exclusivamente para operaciones administrativas del backend.
+- Crear clientes independientes de Supabase para evitar compartir sesiones entre peticiones.
+- Consultar el rol desde `profiles` después de validar el JWT.
+- Mantener el backend sin estado; la persistencia visual y eliminación local de la sesión se integrarán posteriormente con el frontend.
+- Configurar un servicio SMTP propio antes del despliegue final.
+
+### Aprendizajes
+Comprendí la diferencia entre autenticación y autorización, la función de un JWT, el uso del encabezado `Authorization: Bearer`, la diferencia entre respuestas 401 y 403, y la importancia de aplicar mínimo privilegio a las claves y permisos de la base de datos.
+
+### Resultado
+El backend permite registrar usuarios, iniciar sesión, validar JWT, recuperar la identidad y el rol, y proteger recursos según los permisos del usuario. La funcionalidad también fue comprobada correctamente dentro de Docker.
+
+### Siguiente paso
+Implementar el módulo de perfil y jardín personal reutilizando el middleware de autenticación y las políticas RLS existentes.
