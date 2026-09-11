@@ -69,3 +69,30 @@ Se utilizó UUID para los identificadores, un jardín por usuario, visibilidad a
 
 ### Aprendizajes
 Comprendí la diferencia entre Supabase y MySQL Workbench, así como el funcionamiento de llaves, restricciones, triggers, cascadas, roles y seguridad a nivel de fila. También aprendí que los cambios realizados en el dashboard deben conservarse mediante archivos SQL versionados en Git.
+
+
+## 10 de septiembre de 2026 — Módulo 2: Backend base
+
+### Objetivo
+Configurar la base del backend de Digital Garden y comprobar su comunicación con Supabase.
+
+### Trabajo realizado
+- Se inicializó el proyecto de Node.js dentro de `server`.
+- Se instalaron Express, CORS, dotenv, Supabase JS y nodemon.
+- Se configuraron las variables de entorno.
+- Se estableció el puerto 4000 para evitar conflictos con otra aplicación local.
+- Se creó la aplicación base de Express.
+- Se configuró CORS para el futuro frontend.
+- Se creó el endpoint `/api/health`.
+- Se creó el conector de Supabase.
+- Se creó el endpoint `/api/health/database`.
+- Se agregó una respuesta 404 para rutas inexistentes.
+
+### Resultado
+El servidor responde correctamente, se conecta con Supabase y maneja rutas inexistentes.
+
+### Decisiones
+Se utilizaron las nuevas llaves Publishable de Supabase en lugar de las llaves legacy `anon`.
+
+### Aprendizaje
+Comprendí la función de Node.js, Express, las variables de entorno, CORS y la conexión entre el backend y Supabase.
