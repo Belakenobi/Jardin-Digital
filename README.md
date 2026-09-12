@@ -41,6 +41,7 @@ El frontend se comunicará con el backend mediante una API REST. El backend cent
 | --- | --- |
 | Frontend | React, Vite y Tailwind CSS |
 | Backend | Node.js y Express |
+| Contenerización | Docker (backend con Node.js 24 Alpine) |
 | Base de datos | PostgreSQL en Supabase |
 | Autenticación | Supabase Auth y JWT |
 | Almacenamiento | Supabase Storage |
@@ -55,6 +56,7 @@ El frontend se comunicará con el backend mediante una API REST. El backend cent
 
 - `client/`: aplicación frontend.
 - `server/`: API y lógica de negocio.
+- `supabase/migrations/`: esquema SQL versionado de la base de datos.
 - `docs/`: evidencias, pruebas, seguridad y calidad.
 - `.github/workflows/`: configuración futura del pipeline CI/CD.
 - `BITACORA_DESARROLLO.md`: registro del avance real del proyecto.
@@ -65,10 +67,18 @@ Los secretos y credenciales no deben almacenarse en el repositorio. Los archivos
 
 ## Estado actual
 
-Módulo 0: creación de la estructura inicial, documentación base y configuración del control de versiones.
+Actualizado al 12 de septiembre de 2026.
 
-Todavía no se han instalado dependencias ni implementado funcionalidades.
+- **Estructura y Git:** documentación base, plantillas de entorno y repositorio configurados.
+- **Base de datos:** esquema inicial con perfiles, jardines, notas, relaciones e imágenes; restricciones, triggers, roles y políticas RLS conservados en una migración SQL.
+- **Backend base:** Express, CORS, dotenv y conexión con Supabase; endpoints `GET /api/health` y `GET /api/health/database`, respuesta 404 y manejo centralizado de errores.
+- **Autenticación:** registro e inicio de sesión mediante Supabase Auth, validación de JWT y autorización por roles. Rutas: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` y `GET /api/auth/admin/check`.
+- **Docker:** backend contenerizado con dependencias de producción, usuario sin privilegios y comprobación de salud.
+
+La API utiliza el puerto `4000` y permite el origen local del futuro frontend en `http://localhost:5173`. Las pruebas manuales de base de datos, autenticación y Docker están registradas en `BITACORA_DESARROLLO.md`.
+
+El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes los módulos funcionales de perfil/jardín, notas, relaciones, galería y grafo, además del panel administrativo y la interfaz pública. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, CI/CD, despliegue y análisis de seguridad/calidad. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
 
 ## Próximo módulo
 
-Configurar Supabase Cloud y diseñar el esquema relacional de la base de datos.
+Implementar perfil y jardín personal reutilizando el middleware de autenticación y las políticas RLS existentes. Probar los endpoints antes de avanzar al frontend.
