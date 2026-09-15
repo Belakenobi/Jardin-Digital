@@ -67,18 +67,19 @@ Los secretos y credenciales no deben almacenarse en el repositorio. Los archivos
 
 ## Estado actual
 
-Actualizado al 12 de septiembre de 2026.
+Actualizado al 15 de septiembre de 2026.
 
 - **Estructura y Git:** documentación base, plantillas de entorno y repositorio configurados.
 - **Base de datos:** esquema inicial con perfiles, jardines, notas, relaciones e imágenes; restricciones, triggers, roles y políticas RLS conservados en una migración SQL.
 - **Backend base:** Express, CORS, dotenv y conexión con Supabase; endpoints `GET /api/health` y `GET /api/health/database`, respuesta 404 y manejo centralizado de errores.
 - **Autenticación:** registro e inicio de sesión mediante Supabase Auth, validación de JWT y autorización por roles. Rutas: `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` y `GET /api/auth/admin/check`.
 - **Docker:** backend contenerizado con dependencias de producción, usuario sin privilegios y comprobación de salud.
+- **Perfil y jardín (Módulo 4 completado):** consulta del perfil y actualización del nombre visible; creación, consulta y actualización del jardín propio (nombre, descripción y visibilidad). Endpoints: `GET /api/profile`, `PATCH /api/profile`, `GET /api/garden`, `POST /api/garden` y `PATCH /api/garden`. Las operaciones utilizan JWT y políticas RLS, se asocian al usuario autenticado y limitan la creación a un jardín por usuario, con respuesta `409 Conflict` al intentar crear un segundo.
 
 La API utiliza el puerto `4000` y permite el origen local del futuro frontend en `http://localhost:5173`. Las pruebas manuales de base de datos, autenticación y Docker están registradas en `BITACORA_DESARROLLO.md`.
 
-El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes los módulos funcionales de perfil/jardín, notas, relaciones, galería y grafo, además del panel administrativo y la interfaz pública. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, CI/CD, despliegue y análisis de seguridad/calidad. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
+El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes los módulos funcionales de notas, relaciones, galería y grafo, además del panel administrativo y la interfaz pública. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, CI/CD, despliegue y análisis de seguridad/calidad. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
 
 ## Próximo módulo
 
-Implementar perfil y jardín personal reutilizando el middleware de autenticación y las políticas RLS existentes. Probar los endpoints antes de avanzar al frontend.
+Implementar el Módulo 5: notas (CRUD, madurez, fechas y filtros), reutilizando el middleware de autenticación y las políticas RLS existentes. Probar los endpoints antes de avanzar al frontend.

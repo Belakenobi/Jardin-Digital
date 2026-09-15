@@ -161,3 +161,47 @@ El backend permite registrar usuarios, iniciar sesión, validar JWT, recuperar l
 
 ### Siguiente paso
 Implementar el módulo de perfil y jardín personal reutilizando el middleware de autenticación y las políticas RLS existentes.
+
+## 15 de septiembre de 2026 — Módulo 4: Perfil y Jardín
+
+### Estado
+Completado.
+
+### Objetivo
+Implementar la administración básica del perfil y del jardín personal del usuario autenticado.
+
+### Perfil
+- Consulta del perfil del usuario autenticado.
+- Actualización del nombre visible.
+- Acceso protegido mediante JWT.
+- Operaciones realizadas respetando las políticas RLS de Supabase.
+
+Endpoints implementados:
+- `GET /api/profile`
+- `PATCH /api/profile`
+
+### Jardín
+- Creación del jardín personal.
+- Consulta del jardín propio.
+- Actualización de nombre, descripción y visibilidad.
+- Restricción de un jardín por usuario.
+- Asociación automática de las operaciones con el usuario autenticado.
+- Protección mediante JWT y políticas RLS.
+
+Endpoints implementados:
+- `GET /api/garden`
+- `POST /api/garden`
+- `PATCH /api/garden`
+
+### Validaciones realizadas
+Validaciones reportadas al cerrar el módulo; no se volvieron a ejecutar durante esta actualización documental.
+
+- Consulta y modificación correcta del perfil.
+- Creación correcta del jardín.
+- Consulta del jardín creado.
+- Actualización de nombre, descripción y visibilidad.
+- Bloqueo de un segundo jardín para el mismo usuario mediante respuesta `409 Conflict`.
+- Verificación de acceso autenticado mediante JWT.
+
+### Siguiente paso
+Implementar el Módulo 5: notas (CRUD, madurez, fechas y filtros).
