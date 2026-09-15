@@ -71,7 +71,10 @@ export async function authenticate(request, response, next) {
       role: profile.role,
     };
 
+    request.supabase = supabaseUser;
+
     return next();
+
   } catch (error) {
     return next(error);
   }

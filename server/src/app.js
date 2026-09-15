@@ -3,8 +3,8 @@ import cors from "cors";
 import supabase from "./config/supabase.js";
 import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
-
-
+import profileRoutes from "./routes/profile.routes.js";
+import gardenRoutes from "./routes/garden.routes.js";
 
 
 const app = express();
@@ -21,6 +21,8 @@ app.use(
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/garden", gardenRoutes);
 
 
 app.get("/api/health", (_request, response) => {
