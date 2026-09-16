@@ -44,9 +44,7 @@ No se presentaron problemas técnicos durante la creación de la estructura inic
 
 Preparar la estructura y el control de versiones antes de programar permite organizar mejor el proyecto, proteger información sensible y conservar un historial claro de su evolución.
 
-### Siguiente paso
 
-Configurar Supabase Cloud y comenzar el diseño del esquema relacional.
 
 ## 09/09/2026 — Módulo 1: Base de datos en Supabase
 
@@ -159,8 +157,6 @@ Comprendí la diferencia entre autenticación y autorización, la función de un
 ### Resultado
 El backend permite registrar usuarios, iniciar sesión, validar JWT, recuperar la identidad y el rol, y proteger recursos según los permisos del usuario. La funcionalidad también fue comprobada correctamente dentro de Docker.
 
-### Siguiente paso
-Implementar el módulo de perfil y jardín personal reutilizando el middleware de autenticación y las políticas RLS existentes.
 
 ## 15 de septiembre de 2026 — Módulo 4: Perfil y Jardín
 
@@ -203,5 +199,47 @@ Validaciones reportadas al cerrar el módulo; no se volvieron a ejecutar durante
 - Bloqueo de un segundo jardín para el mismo usuario mediante respuesta `409 Conflict`.
 - Verificación de acceso autenticado mediante JWT.
 
+
+## 16 de septiembre de 2026 — Módulo 5: Notas
+
+### Estado
+Completado.
+
+### Objetivo
+Implementar la creación, consulta, actualización y eliminación de notas del jardín del usuario autenticado, con estados de madurez, filtros y fechas automáticas.
+
+### Trabajo realizado
+- Se implementó el flujo `route -> controller -> service -> Supabase` en `note.routes.js`, `note.controller.js` y `note.service.js`, y se registraron las rutas en `server/src/app.js`.
+- Se agregó creación, listado, consulta individual por ID, actualización parcial y eliminación de notas.
+- Se validan título no vacío, contenido de tipo texto y madurez `seed`, `budding` o `tree`. Al crear, el contenido predeterminado es vacío y la madurez es `seed`.
+- El listado permite filtrar con `?maturity=seed`, `?maturity=budding` o `?maturity=tree`, y ordena las notas por última modificación, de más reciente a más antigua.
+- PostgreSQL genera `created_at` y `updated_at` al insertar; el trigger de actualización modifica `updated_at` sin cambiar `created_at`. La API devuelve estos campos como `createdAt` y `updatedAt`.
+- Todos los endpoints requieren JWT mediante `Authorization: Bearer`. El servicio obtiene el jardín a partir del usuario autenticado y utiliza el cliente Supabase asociado a su token, respetando RLS. Antes de actualizar o eliminar se consulta la nota dentro de ese jardín.
+
+Endpoints implementados:
+- `POST /api/notes`
+- `GET /api/notes`
+- `GET /api/notes/:id`
+- `PATCH /api/notes/:id`
+- `DELETE /api/notes/:id`
+
+### Validaciones realizadas
+Pruebas manuales en Postman y Supabase reportadas al cerrar el módulo; no se volvieron a ejecutar durante esta actualización documental.
+
+- Creación, listado, consulta individual, actualización y eliminación de notas.
+- Asignación de los tres estados de madurez y filtrado por madurez.
+- Generación automática de fechas y cambio de `updated_at` al editar, conservando `created_at`.
+- Acceso mediante Bearer Token y operaciones sobre el jardín del usuario autenticado.
+- Respuestas principales `200`, `201`, `400`, `401` y `404`; el código devuelve `201` al crear y `200` al consultar, actualizar o eliminar.
+- Persistencia de los cambios comprobada directamente en Supabase.
+
+Las pruebas unitarias y automatizadas siguen pendientes para un módulo posterior; estas verificaciones manuales no constituyen un reporte de cobertura.
+
+### Aprendizajes
+La asociación de las notas al jardín debe resolverse desde la identidad autenticada. La separación por capas permite mantener las validaciones en el controlador y las consultas en el servicio; los valores predeterminados y triggers de PostgreSQL administran las fechas sin recibirlas del cliente.
+
+### Resultado
+Módulo 5 completado: CRUD de notas, madurez, filtros y fechas automáticas implementados en el backend, con verificación manual y persistencia reportadas en Supabase.
+
 ### Siguiente paso
-Implementar el Módulo 5: notas (CRUD, madurez, fechas y filtros).
+Implementar el Módulo 6: Relaciones / Backlinks.

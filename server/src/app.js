@@ -5,7 +5,7 @@ import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import profileRoutes from "./routes/profile.routes.js";
 import gardenRoutes from "./routes/garden.routes.js";
-
+import noteRoutes from "./routes/note.routes.js";
 
 const app = express();
 app.disable("x-powered-by");
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/garden", gardenRoutes);
-
+app.use("/api/notes", noteRoutes);
 
 app.get("/api/health", (_request, response) => {
   return response.status(200).json({
