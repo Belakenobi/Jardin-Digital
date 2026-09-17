@@ -241,5 +241,59 @@ La asociación de las notas al jardín debe resolverse desde la identidad autent
 ### Resultado
 Módulo 5 completado: CRUD de notas, madurez, filtros y fechas automáticas implementados en el backend, con verificación manual y persistencia reportadas en Supabase.
 
+
+## 17 de septiembre de 2026 — Módulo 6: Relaciones / Backlinks
+
+### Estado
+Completado.
+
+### Objetivo
+Implementar relaciones dirigidas entre notas del jardín del usuario autenticado y consultar sus enlaces salientes y backlinks.
+
+### Trabajo realizado
+- Se reutilizó la tabla existente `public.note_relations`, siguiendo el flujo `route -> controller -> service -> Supabase`.
+- Se crearon `server/src/routes/relation.routes.js`, `server/src/controllers/relation.controller.js` y `server/src/services/relation.service.js`.
+- Se modificó `server/src/app.js` para registrar la ruta principal `/api/relations`.
+- Los endpoints utilizan el middleware de autenticación JWT y el cliente Supabase del usuario, sujeto a RLS.
+- El controlador exige identificadores de origen y destino de tipo texto no vacío. El servicio comprueba que exista el jardín, que existan ambas notas dentro del jardín del usuario, que sean distintas y que no exista ya el mismo par dirigido.
+- La migración existente conserva `source_note_id != target_note_id`, `UNIQUE(source_note_id, target_note_id)`, claves foráneas compuestas para el mismo `garden_id` y eliminación en cascada. No se modificó el esquema SQL.
+
+Endpoints implementados:
+- `POST /api/relations`: crea una relación dirigida con `{ "sourceNoteId": "...", "targetNoteId": "..." }`.
+- `GET /api/relations/note/:noteId`: devuelve `relations.outgoing` (relaciones salientes) y `relations.incoming` (relaciones entrantes o backlinks).
+- `DELETE /api/relations/:id`: elimina una relación existente del jardín del usuario autenticado.
+
+### Pruebas realizadas
+Pruebas manuales en Postman y comprobaciones visuales en Supabase reportadas por la estudiante al cerrar el módulo; no se volvieron a ejecutar durante esta actualización documental. Las validaciones descritas arriba también se contrastaron con el código, sin atribuirles pruebas manuales adicionales.
+
+1. `GET /api/notes`: `200 OK`; permitió obtener los UUID reales de las notas.
+2. `POST /api/relations` con dos notas válidas: `201 Created`; la relación apareció en `public.note_relations` en Supabase.
+3. Repetir exactamente la misma relación: `409 Conflict`, con `{ "status": "error", "message": "Relation already exists" }`.
+4. Relacionar una nota consigo misma: `400 Bad Request`, con `{ "status": "error", "message": "A note cannot be related to itself" }`.
+5. Consultar la nota origen mediante `GET /api/relations/note/:noteId`: `200 OK`; la relación apareció en `outgoing`.
+6. Consultar la nota destino mediante el mismo endpoint: `200 OK`; la relación apareció en `incoming`, confirmando el backlink.
+7. `DELETE /api/relations/:id`: `200 OK`, con el mensaje `"Relation deleted successfully"`.
+8. Consultar nuevamente ambas notas: en ambas, el objeto `relations` quedó como `{ "outgoing": [], "incoming": [] }`. También se verificó visualmente que `note_relations` quedó vacía en Supabase.
+
+Las pruebas automatizadas y la cobertura >= 80 % siguen pendientes; estas comprobaciones manuales no constituyen un reporte de cobertura.
+
+### Problemas encontrados
+En la primera prueba de creación se recibió `500 Internal Server Error`. La terminal mostró `invalid input syntax for type uuid`, con código PostgreSQL `22P02`. Se identificó que `sourceNoteId` se había copiado incorrectamente y contenía un UUID incompleto. Al utilizar los UUID reales obtenidos de `GET /api/notes`, la creación respondió `201 Created`.
+
+Se registra como error de prueba/dato de entrada, no como fallo de la implementación final del módulo. El backend todavía no valida el formato UUID: como mejora futura, conviene rechazarlo con `400 Bad Request` antes de consultar PostgreSQL, evitando que ese dato inválido termine como `500`. Esta mejora no se implementó en este cierre documental.
+
+### Decisiones
+- Reutilizar `note_relations` y sus restricciones existentes sin cambiar la migración.
+- Mantener la arquitectura por capas y resolver el jardín desde el usuario autenticado.
+- Representar el backlink consultando las relaciones entrantes; no crear automáticamente una segunda relación inversa.
+- Conservar el contexto maestro como archivo local excluido de Git.
+- Continuar con galería/Storage; mantener pendientes la revisión completa en Postman, el frontend, React Flow, admin/visitante básico, testing, GitHub Actions, deploy, OWASP ZAP, SonarQube, evidencias e informe final.
+
+### Aprendizajes
+Una relación dirigida aparece como salida de la nota origen y como backlink de la nota destino. Revisar el mensaje y el código de error en terminal ayuda a distinguir un dato mal copiado de un problema en el flujo funcional. Las validaciones del backend y las restricciones de PostgreSQL se complementan para mantener la integridad.
+
+### Resultado
+Módulo 6 completado: creación, consulta de relaciones/backlinks y eliminación implementadas, con resultados manuales reportados en Postman y Supabase. Módulos 0, 1, 2, 3, 4, 5 y 6 completados dentro de su alcance de backend y preparación.
+
 ### Siguiente paso
-Implementar el Módulo 6: Relaciones / Backlinks.
+Módulo 7 — Galería / Supabase Storage.
