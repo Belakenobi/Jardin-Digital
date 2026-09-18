@@ -44,7 +44,8 @@ El frontend se comunicará con el backend mediante una API REST. El backend cent
 | Contenerización | Docker (backend con Node.js 24 Alpine) |
 | Base de datos | PostgreSQL en Supabase |
 | Autenticación | Supabase Auth y JWT |
-| Almacenamiento | Supabase Storage |
+| Almacenamiento | Supabase Storage (bucket privado) |
+| Carga de imágenes | Multer 2.4.0 (multipart/form-data) |
 | Grafo interactivo | React Flow |
 | Pruebas | Jest, Supertest y Postman |
 | CI/CD | GitHub Actions |
@@ -67,9 +68,9 @@ Los secretos y credenciales no deben almacenarse en el repositorio. Los archivos
 
 ## Estado actual
 
-Actualizado al 17 de septiembre de 2026.
+Actualizado al 18 de septiembre de 2026.
 
-Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — Backend base**, **3 — Autenticación**, **4 — Jardín/perfil**, **5 — Notas** y **6 — Relaciones / Backlinks**. La integración de sesión en el frontend y las pruebas automatizadas siguen pendientes, como se detalla abajo.
+Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — Backend base**, **3 — Autenticación**, **4 — Jardín/perfil**, **5 — Notas**, **6 — Relaciones / Backlinks** y **7 — Galería / Supabase Storage**. La integración de sesión en el frontend y las pruebas automatizadas siguen pendientes, como se detalla abajo.
 
 - **Estructura y Git:** documentación base, plantillas de entorno y repositorio configurados.
 - **Base de datos:** esquema inicial con perfiles, jardines, notas, relaciones e imágenes; restricciones, triggers, roles y políticas RLS conservados en una migración SQL.
@@ -81,10 +82,40 @@ Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — B
 
 - **Relaciones / Backlinks (Módulo 6 completado):** backend sobre `public.note_relations`, con el flujo `route -> controller -> service -> Supabase`, JWT y RLS. `POST /api/relations` crea una relación dirigida con `{ "sourceNoteId": "...", "targetNoteId": "..." }`; `GET /api/relations/note/:noteId` devuelve `relations.outgoing` (salientes) y `relations.incoming` (backlinks); `DELETE /api/relations/:id` elimina una relación del jardín propio. Se comprueban el jardín, la existencia y pertenencia de ambas notas, las autorrelaciones y los duplicados. SQL mantiene las restricciones de notas distintas, par único, mismo jardín y eliminación en cascada.
 
-La API utiliza el puerto `4000` y permite el origen local del futuro frontend en `http://localhost:5173`. Las verificaciones manuales de base de datos, autenticación, Docker, perfil/jardín, notas y relaciones/backlinks están registradas en `BITACORA_DESARROLLO.md`. Para notas se reportaron pruebas en Postman de CRUD, madurez, filtros, fechas y respuestas `200`, `201`, `400`, `401` y `404`, con persistencia comprobada en Supabase. Para relaciones se reportaron creación (`201`), duplicado (`409`), autorrelación (`400`), consultas de salientes/backlinks y eliminación (`200`), con verificación en Supabase. Estas pruebas manuales no se volvieron a ejecutar durante la actualización documental. No hay pruebas automatizadas de los módulos 5 y 6; siguen pendientes para un módulo posterior.
+- **Galería / Supabase Storage (Módulo 7 completado):** carga, listado, edición de metadatos y eliminación de imágenes con JWT y RLS. Archivos en el bucket privado `gallery` y metadatos en `public.gallery_images`; detalles y configuración abajo.
 
-El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes galería/Supabase Storage, revisión completa del backend en Postman, frontend React/Vite/Tailwind, grafo React Flow, panel administrativo y visitante básico. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, GitHub Actions (CI/CD), despliegue, OWASP ZAP, SonarQube, evidencias e informe final. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
+La API utiliza el puerto `4000` y permite el origen local del futuro frontend en `http://localhost:5173`. Las verificaciones manuales de base de datos, autenticación, Docker, perfil/jardín, notas y relaciones/backlinks están registradas en `BITACORA_DESARROLLO.md`. Para notas se reportaron pruebas en Postman de CRUD, madurez, filtros, fechas y respuestas `200`, `201`, `400`, `401` y `404`, con persistencia comprobada en Supabase. Para relaciones se reportaron creación (`201`), duplicado (`409`), autorrelación (`400`), consultas de salientes/backlinks y eliminación (`200`), con verificación en Supabase. Estas pruebas manuales no se volvieron a ejecutar durante la actualización documental. Para galería se reportaron POST (`201`), GET/PATCH/DELETE (`200`) y una nota inexistente (`400`), además de visualización mediante URL firmada y eliminación verificada en Storage y PostgreSQL. No hay pruebas automatizadas de los módulos 5–7; siguen pendientes para un módulo posterior.
+
+El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes revisión completa del backend en Postman, frontend React/Vite/Tailwind, grafo React Flow, panel administrativo y visitante básico. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, GitHub Actions (CI/CD), despliegue, OWASP ZAP, SonarQube, evidencias e informe final. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
+
+## Galería / Supabase Storage
+
+Todas las rutas requieren `Authorization: Bearer` y un jardín del usuario autenticado. Express recibe los archivos y opera con el cliente Supabase del usuario, sujeto a RLS; el futuro frontend enviará las cargas a la API.
+
+| Método y ruta | Entrada y resultado |
+| --- | --- |
+| `POST /api/gallery` | `multipart/form-data`: `image` (File obligatorio), `description` y `noteId` (Text opcionales). Devuelve `201`, `{ status, data }`. |
+| `GET /api/gallery` | Devuelve `200`, `{ status, images }`, ordenado por creación descendente; cada imagen incluye `imageUrl`. |
+| `PATCH /api/gallery/:id` | JSON con `description` y/o `noteId`. Devuelve `200`, `{ status, data }`; solo modifica metadatos. |
+| `DELETE /api/gallery/:id` | Borra primero el archivo y después su fila. Devuelve `200` y el mensaje `Gallery image deleted successfully`. |
+
+Multer usa memoria temporal (Buffer), límite de `5 * 1024 * 1024` bytes y filtro MIME `image/jpeg`, `image/png`, `image/webp`. El campo del archivo se llama exactamente `image`. Una imagen puede asociarse con cero o una nota del mismo jardín. Una nota inexistente con UUID válido devuelve `400`, `Note not found in your garden`, antes de subir el archivo. PATCH no cambia `storage_path`, `garden_id` ni reemplaza la imagen.
+
+Storage guarda los archivos JPG/JPEG, PNG y WEBP; PostgreSQL guarda `id`, `garden_id`, `storage_path`, `description`, `note_id`, `created_at` y `updated_at`. La ruta es `gallery/<USER_UUID>/<IMAGE_UUID>.<extension>`; `storage_path` conserva solo `<USER_UUID>/<IMAGE_UUID>.<extension>`. No existe una FK hacia Storage: `gallery.service.js` mantiene la relación e intenta retirar el archivo si falla la inserción de metadatos.
+
+El bucket es privado. GET genera una URL firmada por imagen con `createSignedUrl(storage_path, 60 * 60)`: dura 3600 segundos (una hora) y puede usarse como `src` de una imagen. Caduca esa URL, no el acceso permanente a la galería; una nueva consulta solicita URLs firmadas nuevamente.
+
+### Configuración para otra instalación
+
+Según el cierre del módulo, se creó manualmente en Supabase Dashboard el bucket **`gallery`**, tipo **PRIVATE**, límite **5 MB** y los tres MIME anteriores. Sobre `storage.objects` se configuraron tres políticas para el rol `authenticated`: INSERT, SELECT y DELETE, restringidas mediante:
+
+```sql
+bucket_id = 'gallery'
+AND (storage.foldername(name))[1] = auth.uid()::text
+```
+
+Aplicar la condición como `WITH CHECK` para INSERT y `USING` para SELECT y DELETE. No se requiere UPDATE de archivos físicos en este MVP. **El repositorio no contiene una migración que cree el bucket ni estas políticas de Storage**: deben configurarse manualmente en otra instalación. La migración inicial sí incluye la tabla `gallery_images` y sus políticas de PostgreSQL. Nunca documentar credenciales ni URLs firmadas reales.
 
 ## Próximo módulo
 
-Implementar el **Módulo 7 — Galería / Supabase Storage**: archivos en Storage y metadatos en PostgreSQL, reutilizando la autenticación y las políticas RLS existentes. Después corresponde la revisión completa del backend en Postman antes de avanzar al frontend.
+Continuar con el **Módulo 8 — Revisión completa del backend en Postman**. Después corresponde el **Módulo 9 — Frontend** (React/Vite/Tailwind).

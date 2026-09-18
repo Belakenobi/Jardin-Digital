@@ -3,16 +3,20 @@ export function errorHandler(error, _request, response, _next) {
     name: error.name,
     message: error.message,
     status: error.status,
+    statusCode: error.statusCode,
     code: error.code,
   });
 
+  const errorStatus =
+    error.statusCode ?? error.status;
+
   const isClientError =
-    Number.isInteger(error.status) &&
-    error.status >= 400 &&
-    error.status < 500;
+    Number.isInteger(errorStatus) &&
+    errorStatus >= 400 &&
+    errorStatus < 500;
 
   const statusCode = isClientError
-    ? error.status
+    ? errorStatus
     : 500;
 
   const message = isClientError

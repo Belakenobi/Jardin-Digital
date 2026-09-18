@@ -7,7 +7,7 @@ import profileRoutes from "./routes/profile.routes.js";
 import gardenRoutes from "./routes/garden.routes.js";
 import noteRoutes from "./routes/note.routes.js";
 import relationRoutes from "./routes/relation.routes.js";
-
+import galleryRoutes from "./routes/gallery.routes.js";
 
 
 
@@ -29,7 +29,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/garden", gardenRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/relations", relationRoutes);
-
+app.use("/api/gallery", galleryRoutes);
 
 app.get("/api/health", (_request, response) => {
   return response.status(200).json({

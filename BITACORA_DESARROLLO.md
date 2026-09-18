@@ -297,3 +297,56 @@ Módulo 6 completado: creación, consulta de relaciones/backlinks y eliminación
 
 ### Siguiente paso
 Módulo 7 — Galería / Supabase Storage.
+
+
+## 17–18 de septiembre de 2026 — Módulo 7: Galería / Supabase Storage
+
+### Estado
+Completado a nivel backend y pruebas manuales en Postman.
+
+### Objetivo
+Implementar la galería visual con archivos reales en Supabase Storage, metadatos en PostgreSQL y Express como intermediario, usando JWT y RLS.
+
+### Trabajo realizado
+- Se creó manualmente el bucket `gallery` en Supabase Dashboard: PRIVATE, máximo 5 MB y MIME `image/jpeg`, `image/png`, `image/webp`.
+- Se configuraron exactamente tres políticas sobre `storage.objects` para `authenticated`: INSERT, SELECT y DELETE, con `bucket_id = 'gallery' AND (storage.foldername(name))[1] = auth.uid()::text`. Cada persona opera solo en su carpeta. No se agregó UPDATE porque no se reemplazan archivos físicos. No existe una migración que reproduzca esta configuración de Storage.
+- Se agregó Multer 2.4.0, registrado en `server/package.json` y `server/package-lock.json`. El nuevo `server/src/middleware/upload.middleware.js` exporta `uploadGalleryImage`, con `memoryStorage()`, Buffer temporal, límite `5 * 1024 * 1024` bytes y filtro de los tres MIME permitidos.
+- Se crearon `server/src/routes/gallery.routes.js`, `server/src/controllers/gallery.controller.js` y `server/src/services/gallery.service.js`; `server/src/app.js` registra `app.use("/api/gallery", galleryRoutes)`. Flujo: route -> middleware -> controller -> service -> Supabase PostgreSQL / Storage.
+- La tabla existente `public.gallery_images` guarda `id`, `garden_id`, `storage_path`, `description` nullable, `note_id` nullable, `created_at` y `updated_at`. `storage_path` contiene `<USER_UUID>/<IMAGE_UUID>.<extension>`, sin `gallery/`; la relación con Storage la mantiene el servicio, sin FK ni sincronización automática.
+
+Endpoints implementados:
+- `POST /api/gallery` recibe multipart/form-data mediante `uploadGalleryImage.single("image")`: archivo `image` obligatorio, `description` y `noteId` opcionales. Comprueba jardín y pertenencia de la nota antes de subir; genera un nombre con `randomUUID()`, sube el Buffer e inserta metadatos. Si falla la inserción, intenta borrar el objeto recién subido.
+- `GET /api/gallery` devuelve metadatos e `imageUrl` mediante `createSignedUrl(storage_path, 60 * 60)`. La URL dura una hora; otra consulta solicita nuevas URLs, sin limitar a una hora el uso de la galería.
+- `PATCH /api/gallery/:id` modifica únicamente `description` y/o `noteId`, validando que la nota pertenezca al jardín. `DELETE /api/gallery/:id` busca la imagen del jardín autenticado, borra el objeto y después la fila.
+
+### Pruebas realizadas
+Pruebas manuales reportadas por la estudiante al cerrar el módulo; no se repitieron contra Supabase durante esta actualización documental.
+
+- GET: `200 OK`; POST: `201 Created`; PATCH y DELETE: `200 OK`.
+- Carga independiente con `note_id = NULL` y carga asociada a una nota real; archivos visibles en `gallery` y filas en `public.gallery_images`.
+- URL firmada abierta en navegador, con imagen visible.
+- PATCH: cambia `description` y `updatedAt`, conserva `storagePath` y `createdAt`.
+- DELETE: mensaje `Gallery image deleted successfully`; desaparición comprobada tanto en Storage como en PostgreSQL.
+- POST con UUID válido de nota inexistente: tras la corrección, `400 Bad Request` y `{ "status": "error", "message": "Note not found in your garden" }`. La validación ocurre antes de guardar archivos o metadatos.
+- `node --check` sin errores en `src/middleware/upload.middleware.js`, `src/routes/gallery.routes.js`, `src/controllers/gallery.controller.js`, `src/services/gallery.service.js`, `src/middleware/error.middleware.js` y `src/app.js`, desde `server/`. Un intento buscó accidentalmente `error.middleware.jsq` por un typo en terminal; se repitió correctamente. No fue un fallo del código. Estas seis comprobaciones de sintaxis también se repitieron al actualizar la documentación.
+
+### Problemas encontrados
+Al configurar DELETE, Dashboard exigió también SELECT y generó una política SELECT duplicada. Se eliminó manualmente la adicional; quedaron solo INSERT, SELECT y DELETE.
+
+Un `noteId` con UUID válido pero inexistente produjo inicialmente `500`: el servicio asignaba `error.statusCode = 400`, pero el manejador consultaba solo `error.status`. Se corrigió `server/src/middleware/error.middleware.js` con `error.statusCode ?? error.status`. Los códigos enteros 4xx conservan su mensaje y estado; los errores inesperados siguen como `500` con `Unexpected server error`. La mejora es transversal al backend y facilita la integración del frontend y las pruebas posteriores.
+
+### Decisiones
+- Mantener el bucket privado, con carpetas por USER_UUID y URLs firmadas de una hora.
+- Admitir JPG/PNG/WEBP y máximo 5 MB.
+- Asociar cada imagen con cero o una nota; PATCH solo modifica metadatos.
+- Mantener Express como intermediario para las cargas del futuro frontend React.
+- Tratar Storage y PostgreSQL como operaciones separadas, sin transacción conjunta; la limpieza tras un fallo de inserción es un intento, no una garantía de atomicidad.
+
+### Aprendizajes
+Storage conserva archivos y PostgreSQL sus metadatos; `storage_path` conecta ambos a nivel de aplicación. Las políticas del bucket son distintas de las de la tabla. Una URL firmada caduca y puede solicitarse otra. Unificar `statusCode` y `status` evita convertir errores de negocio en respuestas 500.
+
+### Resultado
+Módulos 0–7 completados dentro de su alcance de preparación y backend. Galería implementada y validada manualmente; pruebas automatizadas Jest/Supertest y cobertura >=80 % aún pendientes.
+
+### Siguiente paso
+Módulo 8 — Revisión completa del backend en Postman; después Módulo 9 — Frontend. Siguen pendientes React/Vite/Tailwind funcional, React Flow, admin/visitante básico, testing, CI/CD, deploy, OWASP ZAP, SonarQube, evidencias e informe final.
