@@ -48,3 +48,7 @@ Thumbs.db
 
 # Reportes locales de OWASP ZAP
 zap-reports/
+
+# Postman local workspace
+.postman/
+postman/

@@ -350,3 +350,75 @@ Módulos 0–7 completados dentro de su alcance de preparación y backend. Galer
 
 ### Siguiente paso
 Módulo 8 — Revisión completa del backend en Postman; después Módulo 9 — Frontend. Siguen pendientes React/Vite/Tailwind funcional, React Flow, admin/visitante básico, testing, CI/CD, deploy, OWASP ZAP, SonarQube, evidencias e informe final.
+
+
+## 19 de septiembre de 2026 — Módulo 8: Revisión completa del backend en Postman
+
+### Estado
+Completado funcionalmente y probado manualmente. Pendiente de revisión documental y versionado por la estudiante.
+
+### Objetivo
+Cerrar la revisión del backend existente, comprobar relaciones, galería y aislamiento entre usuarios, y registrar la corrección final del manejo de errores de carga.
+
+### Trabajo realizado
+Se contrastó el estado actual de `server/src/app.js`, las rutas, controladores y servicios de notas, relaciones y galería, los middleware de autenticación, carga y errores, y `supabase/migrations/20260910000000_initial_schema.sql`. Las funcionalidades de relaciones y galería se implementaron en los módulos 6 y 7; este módulo consolida su verificación y cierre.
+
+- Relaciones: `server/src/routes/relation.routes.js`, `server/src/controllers/relation.controller.js` y `server/src/services/relation.service.js` operan sobre `public.note_relations`. `POST /api/relations` recibe `sourceNoteId` y `targetNoteId`, comprueba ambas notas dentro del jardín propio, rechaza autorrelaciones con `400` y pares dirigidos ya existentes con `409`. SQL refuerza la integridad mediante CHECK, UNIQUE y FK compuestas del mismo jardín.
+- `GET /api/relations/note/:noteId` devuelve `relations.outgoing` e `incoming`; los backlinks son relaciones entrantes, sin insertar una relación inversa. `DELETE /api/relations/:id` verifica pertenencia al jardín y elimina la relación.
+- Galería: `server/src/routes/gallery.routes.js`, `server/src/controllers/gallery.controller.js` y `server/src/services/gallery.service.js` conectan `public.gallery_images` con el bucket `gallery`. `POST /api/gallery` recibe multipart/form-data con `image` obligatorio y `description`/`noteId` opcionales. La nota se valida antes de subir y debe pertenecer al jardín propio.
+- El archivo se guarda como `<USER_UUID>/<IMAGE_UUID>.<extension>` dentro de `gallery`; `storage_path` no incluye el bucket. Si falla la inserción de metadatos, el servicio intenta retirar el archivo recién subido.
+- `GET /api/gallery` lista por creación descendente y agrega `imageUrl` con `createSignedUrl(storage_path, 60 * 60)`. Las URLs firmadas duran una hora y permiten visualizar imágenes privadas; una nueva consulta solicita URLs nuevamente. POST y PATCH devuelven metadatos sin `imageUrl`.
+- `PATCH /api/gallery/:id` actualiza descripción y/o asociación. `noteId: null` desasocia; omitirlo conserva la asociación. Una nota inexistente o ajena con UUID válido produce `400`, `Note not found in your garden`.
+- `DELETE /api/gallery/:id` busca la imagen del jardín propio, elimina el objeto de Storage y después el registro de `gallery_images`. Si falla Storage, no intenta borrar la fila. No hay transacción conjunta: un fallo posterior de PostgreSQL puede dejar metadatos sin archivo.
+- `server/src/middleware/upload.middleware.js` usa `memoryStorage()` y `single("image")` se aplica en la ruta. Admite los MIME `image/jpeg`, `image/png` y `image/webp`. El límite real es `5 * 1024 * 1024` = 5 242 880 bytes (5 MiB; mensaje de error: 5 MB). El filtro revisa el MIME declarado, sin inspección binaria ni validación independiente de la extensión.
+- Seguridad: las rutas requieren `authenticate`, validan el JWT y usan `request.supabase` con el token del usuario. Los servicios obtienen el jardín mediante `gardens.user_id` y comprueban las notas por `id` y `garden_id`; actualizar una nota exige consultar primero su pertenencia. Consultar o modificar una nota ajena mediante la API devuelve `404`. RLS complementa estas comprobaciones; las políticas SQL también prevén lectura pública y administración, mientras estas rutas operan sobre el jardín propio.
+
+### Problemas encontrados y corrección final
+Un campo multipart incorrecto (`iamge` en lugar de `image`) se trataba como error inesperado y terminaba en `500 Internal Server Error`. La corrección ya presente en `server/src/middleware/error.middleware.js` reconoce `error.name === "MulterError"` antes de evaluar `statusCode`/`status` y devuelve `400 Bad Request` con `{ status: "error", message }`:
+
+- `LIMIT_FILE_SIZE`: `Image file must be 5 MB or less`.
+- `LIMIT_UNEXPECTED_FILE`: `Unexpected file field. Use "image" as the file field name`.
+- Otros errores de Multer conservan `error.message` con estado `400`.
+
+El rechazo de PDF procede del filtro MIME: asigna `statusCode = 400` y el mensaje `Only JPG, PNG and WEBP images are allowed`. Se conserva el manejo general de códigos enteros 4xx mediante `error.statusCode ?? error.status`; los errores inesperados siguen en `500` con `Unexpected server error`.
+
+### Pruebas realizadas
+Pruebas manuales de cierre verificadas y reportadas por la estudiante. Se contrastaron rutas y comportamiento con el código local; no se ejecutaron nuevamente peticiones a Supabase durante esta actualización documental.
+
+| Caso | Resultado reportado |
+| --- | --- |
+| Crear relación válida: `POST /api/relations` | `201` |
+| Consultar origen y destino: `GET /api/relations/note/:noteId` | `200`; relación en outgoing/incoming |
+| Repetir la relación | `409` |
+| Relacionar una nota consigo misma | `400` |
+| Eliminar relación: `DELETE /api/relations/:id` | `200` |
+| Consultar después de eliminar | Arrays outgoing/incoming vacíos |
+| Listar galería: `GET /api/gallery` | `200` |
+| Subir JPG válido: `POST /api/gallery` | `201`; archivo presente en Supabase Storage |
+| Consultar galería y abrir URL firmada | Imagen visible mediante URL funcional |
+| Actualizar descripción: `PATCH /api/gallery/:id` | `200` |
+| Asociar imagen con nota válida mediante PATCH | `200` |
+| Desasociar con `noteId: null` mediante PATCH | `200` |
+| Asociar con nota inexistente/ajena | `400` |
+| Eliminar imagen: `DELETE /api/gallery/:id` | `200`; eliminación comprobada del registro y del archivo |
+| Otro usuario consulta una nota ajena: `GET /api/notes/:id` | `404` |
+| Otro usuario modifica una nota ajena: `PATCH /api/notes/:id` | `404` |
+| Enviar campo de archivo `iamge` en lugar de `image` | `400`; mensaje indica el campo correcto |
+| Intentar subir PDF | `400`; mensaje indica que solo JPG, PNG y WEBP están permitidos |
+
+El límite de tamaño y el manejo de `LIMIT_FILE_SIZE` se verificaron en código; no se reportó una prueba manual de archivo sobredimensionado. No se atribuyen pruebas automatizadas ni cobertura a estas comprobaciones: `server/tests/` conserva solo `.gitkeep` y `server/package.json` no define script de pruebas ni dependencias Jest/Supertest.
+
+### Decisiones y límites vigentes
+- Conservar el bucket privado y las políticas manuales de Storage registradas en el Módulo 7. No hay migración del bucket/políticas de Storage y no se consultó el Dashboard durante esta revisión documental.
+- Mantener el alcance real de las validaciones: sigue pendiente validar formato UUID; un UUID mal formado puede terminar en `500`. La comprobación previa de duplicados devuelve `409`, pero el error UNIQUE de una inserción concurrente no tiene un mapeo específico a `409`.
+- Conservar el historial de módulos anteriores. Se corrigió el estado desactualizado que dejaba el Módulo 8 pendiente y la afirmación del contexto maestro que negaba el manejo específico de Multer.
+- En esta actualización solo se modificaron README, bitácora y contexto maestro local. La corrección funcional del middleware ya existía en staging; no se modificó código, migraciones ni configuración, ni se ejecutó git add, commit o push.
+
+### Aprendizajes
+Los errores de un middleware de carga requieren clasificación explícita para devolver respuestas comprensibles al cliente. La comprobación funcional de una eliminación de galería debe incluir tanto Storage como PostgreSQL. Las pruebas con otra identidad permiten verificar el aislamiento aplicado por la API.
+
+### Resultado
+Módulos 0–8 completados dentro de su alcance de preparación, backend y revisión manual. Módulo 8 cerrado funcionalmente y probado; cambios documentales listos para revisión antes del commit final.
+
+### Siguiente paso
+Módulo 9 — Frontend React/Vite/Tailwind. Siguen pendientes integración de sesión, React Flow, admin/visitante básico, SMTP propio, pruebas automatizadas y cobertura >=80 %, CI/CD, despliegue, OWASP ZAP, SonarQube, evidencias e informe final.

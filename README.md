@@ -66,11 +66,13 @@ El frontend se comunicará con el backend mediante una API REST. El backend cent
 
 Los secretos y credenciales no deben almacenarse en el repositorio. Los archivos `.env` reales serán ignorados por Git y solamente se versionarán plantillas `.env.example` sin valores sensibles.
 
+Las rutas protegidas validan el JWT con Supabase Auth y usan el cliente del usuario sujeto a RLS. Los servicios de notas, relaciones y galería resuelven el jardín por el usuario autenticado. Consultar o modificar una nota ajena mediante `GET/PATCH /api/notes/:id` devuelve `404`. Este alcance corresponde a la API del jardín propio; las políticas SQL también contemplan lectura pública y permisos administrativos, sin que exista todavía una API de visitante o un panel administrativo.
+
 ## Estado actual
 
-Actualizado al 18 de septiembre de 2026.
+Actualizado al 19 de septiembre de 2026.
 
-Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — Backend base**, **3 — Autenticación**, **4 — Jardín/perfil**, **5 — Notas**, **6 — Relaciones / Backlinks** y **7 — Galería / Supabase Storage**. La integración de sesión en el frontend y las pruebas automatizadas siguen pendientes, como se detalla abajo.
+Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — Backend base**, **3 — Autenticación**, **4 — Jardín/perfil**, **5 — Notas**, **6 — Relaciones / Backlinks**, **7 — Galería / Supabase Storage** y **8 — Revisión completa del backend en Postman**. La integración de sesión en el frontend y las pruebas automatizadas siguen pendientes, como se detalla abajo.
 
 - **Estructura y Git:** documentación base, plantillas de entorno y repositorio configurados.
 - **Base de datos:** esquema inicial con perfiles, jardines, notas, relaciones e imágenes; restricciones, triggers, roles y políticas RLS conservados en una migración SQL.
@@ -84,9 +86,9 @@ Módulos completados: **0 — Preparación**, **1 — Base de datos**, **2 — B
 
 - **Galería / Supabase Storage (Módulo 7 completado):** carga, listado, edición de metadatos y eliminación de imágenes con JWT y RLS. Archivos en el bucket privado `gallery` y metadatos en `public.gallery_images`; detalles y configuración abajo.
 
-La API utiliza el puerto `4000` y permite el origen local del futuro frontend en `http://localhost:5173`. Las verificaciones manuales de base de datos, autenticación, Docker, perfil/jardín, notas y relaciones/backlinks están registradas en `BITACORA_DESARROLLO.md`. Para notas se reportaron pruebas en Postman de CRUD, madurez, filtros, fechas y respuestas `200`, `201`, `400`, `401` y `404`, con persistencia comprobada en Supabase. Para relaciones se reportaron creación (`201`), duplicado (`409`), autorrelación (`400`), consultas de salientes/backlinks y eliminación (`200`), con verificación en Supabase. Estas pruebas manuales no se volvieron a ejecutar durante la actualización documental. Para galería se reportaron POST (`201`), GET/PATCH/DELETE (`200`) y una nota inexistente (`400`), además de visualización mediante URL firmada y eliminación verificada en Storage y PostgreSQL. No hay pruebas automatizadas de los módulos 5–7; siguen pendientes para un módulo posterior.
+La API utiliza por defecto el puerto `4000` y el origen CORS `http://localhost:5173`, configurables mediante `PORT` y `CLIENT_URL`. El **Módulo 8 está funcionalmente terminado y probado manualmente**: se verificaron relaciones/backlinks, galería, URLs firmadas, eliminación en Storage y PostgreSQL, aislamiento de notas entre usuarios y rechazo de cargas inválidas. La corrección final reconoce los errores de Multer como `400 Bad Request`. Los resultados reportados del cierre están en `BITACORA_DESARROLLO.md`; se contrastaron con el código y no se repitieron contra Supabase durante esta actualización documental. Las pruebas automatizadas y la cobertura >=80 % siguen pendientes.
 
-El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes revisión completa del backend en Postman, frontend React/Vite/Tailwind, grafo React Flow, panel administrativo y visitante básico. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, GitHub Actions (CI/CD), despliegue, OWASP ZAP, SonarQube, evidencias e informe final. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
+El frontend todavía tiene únicamente su estructura inicial. Quedan pendientes frontend React/Vite/Tailwind, grafo React Flow, panel administrativo y visitante básico. También falta integrar persistencia, cierre y renovación de sesión, configurar SMTP propio, implementar pruebas automatizadas con cobertura >=80 %, GitHub Actions (CI/CD), despliegue, OWASP ZAP, SonarQube, evidencias e informe final. La lista de tecnologías y funcionalidades anterior describe el alcance previsto del MVP.
 
 ## Galería / Supabase Storage
 
@@ -96,12 +98,16 @@ Todas las rutas requieren `Authorization: Bearer` y un jardín del usuario auten
 | --- | --- |
 | `POST /api/gallery` | `multipart/form-data`: `image` (File obligatorio), `description` y `noteId` (Text opcionales). Devuelve `201`, `{ status, data }`. |
 | `GET /api/gallery` | Devuelve `200`, `{ status, images }`, ordenado por creación descendente; cada imagen incluye `imageUrl`. |
-| `PATCH /api/gallery/:id` | JSON con `description` y/o `noteId`. Devuelve `200`, `{ status, data }`; solo modifica metadatos. |
+| `PATCH /api/gallery/:id` | JSON con `description` y/o `noteId`. Devuelve `200`, `{ status, data }`; solo modifica metadatos; `noteId: null` desasocia la nota. |
 | `DELETE /api/gallery/:id` | Borra primero el archivo y después su fila. Devuelve `200` y el mensaje `Gallery image deleted successfully`. |
 
-Multer usa memoria temporal (Buffer), límite de `5 * 1024 * 1024` bytes y filtro MIME `image/jpeg`, `image/png`, `image/webp`. El campo del archivo se llama exactamente `image`. Una imagen puede asociarse con cero o una nota del mismo jardín. Una nota inexistente con UUID válido devuelve `400`, `Note not found in your garden`, antes de subir el archivo. PATCH no cambia `storage_path`, `garden_id` ni reemplaza la imagen.
+Multer usa memoria temporal (Buffer), límite de `5 * 1024 * 1024` bytes (5 242 880 bytes, 5 MiB; el mensaje de error lo expresa como 5 MB) y filtro MIME `image/jpeg`, `image/png`, `image/webp`. El campo del archivo se llama exactamente `image`. Una imagen puede asociarse con cero o una nota del mismo jardín. Una nota inexistente o ajena con UUID válido devuelve `400`, `Note not found in your garden`, antes de subir el archivo. PATCH no cambia `storage_path`, `garden_id` ni reemplaza la imagen.
 
-Storage guarda los archivos JPG/JPEG, PNG y WEBP; PostgreSQL guarda `id`, `garden_id`, `storage_path`, `description`, `note_id`, `created_at` y `updated_at`. La ruta es `gallery/<USER_UUID>/<IMAGE_UUID>.<extension>`; `storage_path` conserva solo `<USER_UUID>/<IMAGE_UUID>.<extension>`. No existe una FK hacia Storage: `gallery.service.js` mantiene la relación e intenta retirar el archivo si falla la inserción de metadatos.
+El filtro verifica `file.mimetype`; no inspecciona el contenido binario ni valida por separado la extensión. Los tipos no permitidos, como PDF, reciben `400` con `Only JPG, PNG and WEBP images are allowed`. El manejador `server/src/middleware/error.middleware.js` reconoce `MulterError`: `LIMIT_FILE_SIZE` y `LIMIT_UNEXPECTED_FILE` devuelven `400`, con mensajes de tamaño máximo y uso del campo `image`, respectivamente.
+
+Storage guarda los archivos aceptados; PostgreSQL guarda `id`, `garden_id`, `storage_path`, `description`, `note_id`, `created_at` y `updated_at`. La ruta es `gallery/<USER_UUID>/<IMAGE_UUID>.<extension>`; `storage_path` conserva solo `<USER_UUID>/<IMAGE_UUID>.<extension>`. No existe una FK hacia Storage: `gallery.service.js` mantiene la relación e intenta retirar el archivo si falla la inserción de metadatos.
+
+La eliminación coordina dos operaciones separadas: si falla Storage no se borra la fila; si falla PostgreSQL después del borrado del archivo, puede quedar un registro sin archivo. No hay transacción conjunta.
 
 El bucket es privado. GET genera una URL firmada por imagen con `createSignedUrl(storage_path, 60 * 60)`: dura 3600 segundos (una hora) y puede usarse como `src` de una imagen. Caduca esa URL, no el acceso permanente a la galería; una nueva consulta solicita URLs firmadas nuevamente.
 
@@ -118,4 +124,4 @@ Aplicar la condición como `WITH CHECK` para INSERT y `USING` para SELECT y DELE
 
 ## Próximo módulo
 
-Continuar con el **Módulo 8 — Revisión completa del backend en Postman**. Después corresponde el **Módulo 9 — Frontend** (React/Vite/Tailwind).
+Continuar con el **Módulo 9 — Frontend** (React/Vite/Tailwind), sobre el backend verificado en el Módulo 8.
