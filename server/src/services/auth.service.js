@@ -27,7 +27,6 @@ export async function registerUser({
   };
 }
 
-
 export async function loginUser({
   email,
   password,
@@ -38,6 +37,26 @@ export async function loginUser({
     await supabaseAuth.auth.signInWithPassword({
       email,
       password,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    user: data.user,
+    session: data.session,
+  };
+}
+
+export async function refreshUserSession(
+  refreshToken
+) {
+  const supabaseAuth = createSupabaseClient();
+
+  const { data, error } =
+    await supabaseAuth.auth.refreshSession({
+      refresh_token: refreshToken,
     });
 
   if (error) {

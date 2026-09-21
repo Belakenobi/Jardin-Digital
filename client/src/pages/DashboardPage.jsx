@@ -10,6 +10,7 @@ import {
 
 import {
   getGarden,
+  createGarden,
   updateGarden,
 } from '../services/garden.js'
 
@@ -92,6 +93,7 @@ function DashboardPage() {
   const [isLoadingGallery, setIsLoadingGallery] = useState(false)
 
   const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [isCreatingGarden, setIsCreatingGarden] = useState(false)
   const [isSavingGarden, setIsSavingGarden] = useState(false)
 
   const [isCreatingNote, setIsCreatingNote] = useState(false)
@@ -126,16 +128,25 @@ function DashboardPage() {
         setProfile(profileResponse.profile)
         setDisplayName(profileResponse.profile.displayName)
 
-        const gardenResponse = await getGarden()
+        try {
+          const gardenResponse = await getGarden()
 
-        setGarden(gardenResponse.garden)
-        setGardenName(gardenResponse.garden.name)
-        setGardenDescription(
-          gardenResponse.garden.description ?? '',
-        )
-        setGardenIsPublic(
-          gardenResponse.garden.isPublic,
-        )
+          setGarden(gardenResponse.garden)
+          setGardenName(gardenResponse.garden.name)
+          setGardenDescription(
+            gardenResponse.garden.description ?? '',
+          )
+          setGardenIsPublic(
+            gardenResponse.garden.isPublic,
+          )
+        } catch (gardenError) {
+          if (gardenError.status === 404) {
+            setGarden(null)
+            return
+          }
+
+          throw gardenError
+        }
 
         const notesResponse = await getNotes()
 
@@ -248,6 +259,48 @@ function DashboardPage() {
       setError(error.message)
     } finally {
       setIsSavingProfile(false)
+    }
+  }
+
+  async function handleCreateGarden(event) {
+    event.preventDefault()
+
+    setError('')
+    setGardenMessage('')
+    setIsCreatingGarden(true)
+
+    try {
+      const response = await createGarden({
+        name: gardenName,
+        description: gardenDescription || null,
+        isPublic: gardenIsPublic,
+      })
+
+      setGarden(response.garden)
+      setGardenName(response.garden.name)
+      setGardenDescription(
+        response.garden.description ?? '',
+      )
+      setGardenIsPublic(
+        response.garden.isPublic,
+      )
+
+      setGardenMessage(
+        'Jardín creado correctamente.',
+      )
+
+      const notesResponse = await getNotes()
+
+      setNotes(notesResponse.notes)
+      setAllNotes(notesResponse.notes)
+
+      const galleryResponse = await getGalleryImages()
+
+      setGalleryImages(galleryResponse.images)
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setIsCreatingGarden(false)
     }
   }
 
@@ -707,6 +760,88 @@ function DashboardPage() {
           </section>
         )}
 
+        {!isLoading && profile && !garden && (
+          <section className="mt-8 rounded-2xl border border-lime-900 bg-stone-900 p-6">
+            <h2 className="text-xl font-medium">
+              Crea tu jardín
+            </h2>
+
+            <p className="mt-3 text-stone-400">
+              Tu cuenta ya está lista. Ahora crea tu jardín para
+              empezar a guardar notas, relaciones e imágenes.
+            </p>
+
+            <form
+              onSubmit={handleCreateGarden}
+              className="mt-6 max-w-xl space-y-5"
+            >
+              <div>
+                <label
+                  htmlFor="newGardenName"
+                  className="mb-2 block text-sm text-stone-300"
+                >
+                  Nombre del jardín
+                </label>
+
+                <input
+                  id="newGardenName"
+                  type="text"
+                  value={gardenName}
+                  onChange={(event) =>
+                    setGardenName(event.target.value)
+                  }
+                  className="w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="newGardenDescription"
+                  className="mb-2 block text-sm text-stone-300"
+                >
+                  Descripción
+                </label>
+
+                <textarea
+                  id="newGardenDescription"
+                  value={gardenDescription}
+                  onChange={(event) =>
+                    setGardenDescription(
+                      event.target.value,
+                    )
+                  }
+                  className="min-h-32 w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
+                />
+              </div>
+
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={gardenIsPublic}
+                  onChange={(event) =>
+                    setGardenIsPublic(
+                      event.target.checked,
+                    )
+                  }
+                />
+
+                Jardín público
+              </label>
+
+              <button
+                type="submit"
+                disabled={isCreatingGarden}
+                className="rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950 disabled:opacity-50"
+              >
+                {isCreatingGarden
+                  ? 'Creando jardín...'
+                  : 'Crear mi jardín'}
+              </button>
+            </form>
+          </section>
+        )}
+
         {garden && (
           <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
             <h2 className="text-xl font-medium">
@@ -768,6 +903,8 @@ function DashboardPage() {
           </section>
         )}
 
+        {garden && (
+          <>
         <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
           <h2 className="text-xl font-medium">
             Plantar una nueva idea
@@ -1413,6 +1550,8 @@ function DashboardPage() {
               </p>
             )}
         </section>
+          </>
+        )}
 
         <button
           type="button"
@@ -1427,3 +1566,4 @@ function DashboardPage() {
 }
 
 export default DashboardPage
+

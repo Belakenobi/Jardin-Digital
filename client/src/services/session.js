@@ -1,17 +1,36 @@
 const SESSION_KEY = 'dg_session'
 
 export function saveSession(session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify(session),
+  )
 }
 
 export function getSession() {
-  const storedSession = localStorage.getItem(SESSION_KEY)
+  const storedSession =
+    localStorage.getItem(SESSION_KEY)
 
   if (!storedSession) {
     return null
   }
 
-  return JSON.parse(storedSession)
+  try {
+    const session = JSON.parse(storedSession)
+
+    if (
+      !session ||
+      typeof session !== 'object'
+    ) {
+      clearSession()
+      return null
+    }
+
+    return session
+  } catch {
+    clearSession()
+    return null
+  }
 }
 
 export function clearSession() {

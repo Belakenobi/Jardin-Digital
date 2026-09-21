@@ -1,6 +1,6 @@
-
 import {
   loginUser,
+  refreshUserSession,
   registerUser,
 } from "../services/auth.service.js";
 
@@ -8,8 +8,6 @@ import {
   validateLogin,
   validateRegistration,
 } from "../validators/auth.validator.js";
-
-
 
 function formatSession(session) {
   if (!session) {
@@ -24,8 +22,14 @@ function formatSession(session) {
   };
 }
 
-export async function register(request, response, next) {
-  const validation = validateRegistration(request.body);
+export async function register(
+  request,
+  response,
+  next
+) {
+  const validation = validateRegistration(
+    request.body
+  );
 
   if (!validation.isValid) {
     return response.status(400).json({
@@ -36,7 +40,8 @@ export async function register(request, response, next) {
   }
 
   try {
-    const { user, session } = await registerUser(validation.data);
+    const { user, session } =
+      await registerUser(validation.data);
 
     return response.status(201).json({
       status: "success",
@@ -58,7 +63,12 @@ export async function register(request, response, next) {
     return next(error);
   }
 }
-export async function login(request, response, next) {
+
+export async function login(
+  request,
+  response,
+  next
+) {
   const validation = validateLogin(request.body);
 
   if (!validation.isValid) {
@@ -99,7 +109,59 @@ export async function login(request, response, next) {
   }
 }
 
-export function getCurrentUser(request, response) {
+export async function refreshSession(
+  request,
+  response,
+  next
+) {
+  const { refreshToken } = request.body;
+
+  if (
+    !refreshToken ||
+    typeof refreshToken !== "string"
+  ) {
+    return response.status(400).json({
+      status: "error",
+      message: "Refresh token is required",
+    });
+  }
+
+  try {
+    const { user, session } =
+      await refreshUserSession(refreshToken);
+
+    if (!session) {
+      const error = new Error(
+        "Session could not be refreshed"
+      );
+
+      error.status = 401;
+
+      throw error;
+    }
+
+    return response.status(200).json({
+      status: "success",
+      message: "Session refreshed successfully",
+      data: {
+        user: user
+          ? {
+              id: user.id,
+              email: user.email,
+            }
+          : null,
+        session: formatSession(session),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export function getCurrentUser(
+  request,
+  response
+) {
   return response.status(200).json({
     status: "success",
     data: {
@@ -108,7 +170,10 @@ export function getCurrentUser(request, response) {
   });
 }
 
-export function getAdminAccess(request, response) {
+export function getAdminAccess(
+  request,
+  response
+) {
   return response.status(200).json({
     status: "success",
     message: "Administrator access granted",

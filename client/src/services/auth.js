@@ -10,7 +10,11 @@ export function loginUser({ email, password }) {
   })
 }
 
-export function registerUser({ displayName, email, password }) {
+export function registerUser({
+  displayName,
+  email,
+  password,
+}) {
   return apiRequest('/auth/register', {
     method: 'POST',
     body: JSON.stringify({
@@ -19,4 +23,8 @@ export function registerUser({ displayName, email, password }) {
       password,
     }),
   })
+}
+
+export function getCurrentUser() {
+  return apiRequest('/auth/me')
 }

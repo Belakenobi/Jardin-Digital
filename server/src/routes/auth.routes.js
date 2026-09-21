@@ -1,10 +1,13 @@
 import { Router } from "express";
+
 import {
   getAdminAccess,
   getCurrentUser,
   login,
+  refreshSession,
   register,
 } from "../controllers/auth.controller.js";
+
 import {
   authenticate,
   authorizeRoles,
@@ -14,8 +17,13 @@ const router = Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/refresh", refreshSession);
 
-router.get("/me", authenticate, getCurrentUser);
+router.get(
+  "/me",
+  authenticate,
+  getCurrentUser
+);
 
 router.get(
   "/admin/check",
