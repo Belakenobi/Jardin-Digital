@@ -5,6 +5,8 @@ import {
 
 import { Link } from 'react-router-dom'
 
+import ConfirmDialog from '../components/ConfirmDialog.jsx'
+
 import {
   getGarden,
 } from '../services/garden.js'
@@ -85,6 +87,11 @@ function GalleryPage() {
   const [
     deletingGalleryImageId,
     setDeletingGalleryImageId,
+  ] = useState(null)
+
+  const [
+    imageToDelete,
+    setImageToDelete,
   ] = useState(null)
 
   const [error, setError] =
@@ -257,17 +264,20 @@ function GalleryPage() {
     }
   }
 
-  async function handleDeleteGalleryImage(
-    imageId,
+  function requestDeleteGalleryImage(
+    image,
   ) {
-    const confirmed =
-      window.confirm(
-        '¿Seguro que quieres eliminar esta imagen?',
-      )
+    setError('')
+    setGalleryMessage('')
+    setImageToDelete(image)
+  }
 
-    if (!confirmed) {
+  async function confirmDeleteGalleryImage() {
+    if (!imageToDelete) {
       return
     }
+
+    const imageId = imageToDelete.id
 
     setError('')
     setGalleryMessage('')
@@ -291,6 +301,8 @@ function GalleryPage() {
       setGalleryMessage(
         'Imagen eliminada correctamente.',
       )
+
+      setImageToDelete(null)
 
       await loadGallery()
     } catch (error) {
@@ -658,8 +670,8 @@ function GalleryPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            handleDeleteGalleryImage(
-                              image.id,
+                            requestDeleteGalleryImage(
+                              image,
                             )
                           }
                           disabled={
@@ -682,8 +694,30 @@ function GalleryPage() {
           )}
         </div>
       </section>
+
+      <ConfirmDialog
+        isOpen={Boolean(imageToDelete)}
+        title="Eliminar imagen"
+        message={
+          imageToDelete
+            ? '¿Seguro que quieres eliminar esta imagen de tu galería?'
+            : ''
+        }
+        confirmText="Eliminar imagen"
+        isLoading={
+          deletingGalleryImageId ===
+          imageToDelete?.id
+        }
+        onConfirm={
+          confirmDeleteGalleryImage
+        }
+        onCancel={() =>
+          setImageToDelete(null)
+        }
+      />
     </div>
   )
 }
 
 export default GalleryPage
+

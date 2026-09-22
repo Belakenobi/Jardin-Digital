@@ -5,6 +5,8 @@ import {
 
 import { Link } from 'react-router-dom'
 
+import ConfirmDialog from '../components/ConfirmDialog.jsx'
+
 import {
   getNotes,
   createNote,
@@ -84,6 +86,11 @@ function NotesPage() {
   const [
     deletingNoteId,
     setDeletingNoteId,
+  ] = useState(null)
+
+  const [
+    noteToDelete,
+    setNoteToDelete,
   ] = useState(null)
 
   const [error, setError] =
@@ -248,17 +255,18 @@ function NotesPage() {
     }
   }
 
-  async function handleDeleteNote(
-    noteId,
-  ) {
-    const confirmed =
-      window.confirm(
-        '¿Seguro que quieres eliminar esta nota?',
-      )
+  function requestDeleteNote(note) {
+    setError('')
+    setNoteMessage('')
+    setNoteToDelete(note)
+  }
 
-    if (!confirmed) {
+  async function confirmDeleteNote() {
+    if (!noteToDelete) {
       return
     }
+
+    const noteId = noteToDelete.id
 
     setError('')
     setNoteMessage('')
@@ -276,6 +284,8 @@ function NotesPage() {
       setNoteMessage(
         'Nota eliminada correctamente.',
       )
+
+      setNoteToDelete(null)
 
       await loadNotes()
     } catch (error) {
@@ -659,8 +669,8 @@ function NotesPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          handleDeleteNote(
-                            note.id,
+                          requestDeleteNote(
+                            note,
                           )
                         }
                         disabled={
@@ -704,8 +714,28 @@ function NotesPage() {
           ))}
         </div>
       </section>
+
+      <ConfirmDialog
+        isOpen={Boolean(noteToDelete)}
+        title="Eliminar nota"
+        message={
+          noteToDelete
+            ? `¿Seguro que quieres eliminar "${noteToDelete.title}"?`
+            : ''
+        }
+        confirmText="Eliminar nota"
+        isLoading={
+          deletingNoteId ===
+          noteToDelete?.id
+        }
+        onConfirm={confirmDeleteNote}
+        onCancel={() =>
+          setNoteToDelete(null)
+        }
+      />
     </div>
   )
 }
 
 export default NotesPage
+

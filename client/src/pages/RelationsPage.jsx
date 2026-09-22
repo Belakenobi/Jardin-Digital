@@ -5,6 +5,8 @@ import {
 
 import { Link } from 'react-router-dom'
 
+import ConfirmDialog from '../components/ConfirmDialog.jsx'
+
 import {
   getNotes,
 } from '../services/notes.js'
@@ -62,6 +64,11 @@ function RelationsPage() {
   const [
     deletingRelationId,
     setDeletingRelationId,
+  ] = useState(null)
+
+  const [
+    relationToDelete,
+    setRelationToDelete,
   ] = useState(null)
 
   const [error, setError] =
@@ -192,17 +199,21 @@ function RelationsPage() {
     }
   }
 
-  async function handleDeleteRelation(
-    relationId,
+  function requestDeleteRelation(
+    relation,
   ) {
-    const confirmed =
-      window.confirm(
-        '¿Seguro que quieres eliminar esta relación?',
-      )
+    setError('')
+    setRelationMessage('')
+    setRelationToDelete(relation)
+  }
 
-    if (!confirmed) {
+  async function confirmDeleteRelation() {
+    if (!relationToDelete) {
       return
     }
+
+    const relationId =
+      relationToDelete.id
 
     setError('')
     setRelationMessage('')
@@ -218,6 +229,8 @@ function RelationsPage() {
       setRelationMessage(
         'Relación eliminada correctamente.',
       )
+
+      setRelationToDelete(null)
 
       await loadRelations(
         selectedRelationNoteId,
@@ -475,8 +488,8 @@ function RelationsPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            handleDeleteRelation(
-                              relation.id,
+                            requestDeleteRelation(
+                              relation,
                             )
                           }
                           disabled={
@@ -525,8 +538,8 @@ function RelationsPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            handleDeleteRelation(
-                              relation.id,
+                            requestDeleteRelation(
+                              relation,
                             )
                           }
                           disabled={
@@ -549,8 +562,30 @@ function RelationsPage() {
           )}
         </section>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(relationToDelete)}
+        title="Eliminar relación"
+        message={
+          relationToDelete
+            ? '¿Seguro que quieres eliminar esta relación entre notas?'
+            : ''
+        }
+        confirmText="Eliminar relación"
+        isLoading={
+          deletingRelationId ===
+          relationToDelete?.id
+        }
+        onConfirm={
+          confirmDeleteRelation
+        }
+        onCancel={() =>
+          setRelationToDelete(null)
+        }
+      />
     </div>
   )
 }
 
 export default RelationsPage
+
