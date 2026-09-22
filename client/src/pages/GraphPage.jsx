@@ -28,6 +28,7 @@ import '@xyflow/react/dist/style.css'
 
 import { getNotes } from '../services/notes.js'
 import { getRelationsForNote } from '../services/relations.js'
+import { getGalleryImages } from '../services/gallery.js'
 
 const NODE_WIDTH = 240
 const NODE_HEIGHT = 64
@@ -63,6 +64,17 @@ const nodeBaseStyle = {
   border: '1px solid #44403c',
   fontSize: 14,
   fontWeight: 500,
+}
+
+const imageNodeBaseStyle = {
+  width: 32,
+  height: 32,
+  padding: 0,
+  borderRadius: '9999px',
+  background: '#fef08a',
+  border: '2px solid #fde047',
+  boxShadow:
+    '0 0 8px rgba(253, 224, 71, 0.9), 0 0 22px rgba(253, 224, 71, 0.45)',
 }
 
 function createInitialPosition(
@@ -200,8 +212,13 @@ function GraphPage() {
   ] = useState([])
 
   const [
-    selectedNodeId,
-    setSelectedNodeId,
+    galleryImages,
+    setGalleryImages,
+  ] = useState([])
+
+  const [
+    selectedNode,
+    setSelectedNode,
   ] = useState(null)
 
   const [
@@ -220,13 +237,30 @@ function GraphPage() {
         setLoading(true)
         setError('')
 
-        const notesResponse =
-          await getNotes()
+        const [
+          notesResponse,
+          galleryResponse,
+        ] = await Promise.all([
+          getNotes(),
+          getGalleryImages(),
+        ])
 
         const loadedNotes =
           notesResponse.notes ?? []
 
+        const loadedImages =
+          galleryResponse.images ?? []
+
+        const relatedImages =
+          loadedImages.filter(
+            (image) =>
+              Boolean(image.noteId),
+          )
+
         setNotes(loadedNotes)
+        setGalleryImages(
+          relatedImages,
+        )
 
         if (
           loadedNotes.length === 0
@@ -271,7 +305,7 @@ function GraphPage() {
             ]),
           )
 
-        const graphNodes =
+        const noteNodes =
           loadedNotes.map((note) => {
             const maturity =
               maturityConfig[
@@ -298,6 +332,7 @@ function GraphPage() {
               },
 
               data: {
+                kind: 'note',
                 label:
                   `${maturity.emoji} ${note.title}`,
               },
@@ -310,7 +345,102 @@ function GraphPage() {
             }
           })
 
-        const graphEdges =
+        const imagesByNote =
+          new Map()
+
+        relatedImages.forEach(
+          (image) => {
+            const current =
+              imagesByNote.get(
+                image.noteId,
+              ) ?? []
+
+            current.push(image)
+
+            imagesByNote.set(
+              image.noteId,
+              current,
+            )
+          },
+        )
+
+        const imageNodes =
+          relatedImages.map(
+            (image) => {
+              const relatedNotePosition =
+                positionsById.get(
+                  image.noteId,
+                )
+
+              const siblings =
+                imagesByNote.get(
+                  image.noteId,
+                ) ?? []
+
+              const imageIndex =
+                siblings.findIndex(
+                  (currentImage) =>
+                    currentImage.id
+                    === image.id,
+                )
+
+              const angle =
+                (
+                  imageIndex /
+                  Math.max(
+                    siblings.length,
+                    1,
+                  )
+                ) *
+                Math.PI *
+                2
+
+              const radius =
+                210 +
+                (
+                  imageIndex % 2
+                ) * 55
+
+              return {
+                id:
+                  `image-${image.id}`,
+                  className: 'image-node',
+
+                position: {
+                  x:
+                    (relatedNotePosition
+                      ?.x ?? 0)
+                    +
+                    Math.cos(
+                      angle,
+                    ) *
+                    radius,
+
+                  y:
+                    (relatedNotePosition
+                      ?.y ?? 0)
+                    +
+                    Math.sin(
+                      angle,
+                    ) *
+                    radius,
+                },
+
+                data: {
+                  kind: 'image',
+                  imageId: image.id,
+                  noteId: image.noteId,
+                  label: '',
+                },
+
+                style: {
+                  ...imageNodeBaseStyle,
+                },
+              }
+            },
+          )
+
+        const noteEdges =
           outgoingRelations.map(
             (relation) => ({
               id: relation.id,
@@ -320,6 +450,10 @@ function GraphPage() {
 
               target:
                 relation.targetNoteId,
+
+              data: {
+                kind: 'noteRelation',
+              },
 
               markerEnd: {
                 type:
@@ -334,8 +468,41 @@ function GraphPage() {
             }),
           )
 
-        setNodes(graphNodes)
-        setEdges(graphEdges)
+        const imageEdges =
+          relatedImages.map(
+            (image) => ({
+              id:
+                `image-link-${image.id}`,
+
+              source:
+                `image-${image.id}`,
+
+              target:
+                image.noteId,
+
+              data: {
+                kind: 'imageRelation',
+              },
+
+              style: {
+                stroke: '#fde047',
+                strokeWidth: 1.2,
+                strokeDasharray:
+                  '2 9',
+                opacity: 0.55,
+              },
+            }),
+          )
+
+        setNodes([
+          ...noteNodes,
+          ...imageNodes,
+        ])
+
+        setEdges([
+          ...noteEdges,
+          ...imageEdges,
+        ])
       } catch (requestError) {
         setError(
           requestError.message
@@ -353,21 +520,50 @@ function GraphPage() {
   ])
 
   const selectedNote =
-    useMemo(
-      () =>
+    useMemo(() => {
+      if (
+        selectedNode?.kind !==
+        'note'
+      ) {
+        return null
+      }
+
+      return (
         notes.find(
           (note) =>
-            note.id === selectedNodeId,
-        ) ?? null,
-      [
-        notes,
-        selectedNodeId,
-      ],
-    )
+            note.id ===
+            selectedNode.id,
+        ) ?? null
+      )
+    }, [
+      notes,
+      selectedNode,
+    ])
+
+  const selectedImage =
+    useMemo(() => {
+      if (
+        selectedNode?.kind !==
+        'image'
+      ) {
+        return null
+      }
+
+      return (
+        galleryImages.find(
+          (image) =>
+            image.id ===
+            selectedNode.id,
+        ) ?? null
+      )
+    }, [
+      galleryImages,
+      selectedNode,
+    ])
 
   const selectedRelations =
     useMemo(() => {
-      if (!selectedNodeId) {
+      if (!selectedNote) {
         return {
           outgoing: [],
           incoming: [],
@@ -379,19 +575,35 @@ function GraphPage() {
           relations.filter(
             (relation) =>
               relation.sourceNoteId
-              === selectedNodeId,
+              === selectedNote.id,
           ),
 
         incoming:
           relations.filter(
             (relation) =>
               relation.targetNoteId
-              === selectedNodeId,
+              === selectedNote.id,
           ),
       }
     }, [
       relations,
-      selectedNodeId,
+      selectedNote,
+    ])
+
+  const selectedNoteImages =
+    useMemo(() => {
+      if (!selectedNote) {
+        return []
+      }
+
+      return galleryImages.filter(
+        (image) =>
+          image.noteId ===
+          selectedNote.id,
+      )
+    }, [
+      galleryImages,
+      selectedNote,
     ])
 
   function getNoteTitle(noteId) {
@@ -405,10 +617,24 @@ function GraphPage() {
   }
 
   function resetHighlight() {
-    setSelectedNodeId(null)
+    setSelectedNode(null)
 
     setNodes((currentNodes) =>
       currentNodes.map((node) => {
+        if (
+          node.data.kind ===
+          'image'
+        ) {
+          return {
+            ...node,
+
+            style: {
+              ...imageNodeBaseStyle,
+              opacity: 1,
+            },
+          }
+        }
+
         const note =
           notes.find(
             (currentNote) =>
@@ -438,40 +664,58 @@ function GraphPage() {
 
     setEdges((currentEdges) =>
       currentEdges.map(
-        (edge) => ({
-          ...edge,
+        (edge) => {
+          if (
+            edge.data?.kind ===
+            'imageRelation'
+          ) {
+            return {
+              ...edge,
 
-          animated: false,
+              animated: false,
 
-          style: {
-            stroke: '#84cc16',
-            strokeWidth: 1.7,
-            opacity: 0.75,
-          },
-        }),
+              style: {
+                stroke: '#fde047',
+                strokeWidth: 1.2,
+                strokeDasharray:
+                  '2 9',
+                opacity: 0.55,
+              },
+            }
+          }
+
+          return {
+            ...edge,
+
+            animated: false,
+
+            style: {
+              stroke: '#84cc16',
+              strokeWidth: 1.7,
+              opacity: 0.75,
+            },
+          }
+        },
       ),
     )
   }
 
-  function handleNodeClick(
-    event,
-    clickedNode,
+  function handleNoteClick(
+    noteId,
   ) {
-    event.stopPropagation()
-
-    const nodeId =
-      clickedNode.id
-
-    setSelectedNodeId(nodeId)
+    setSelectedNode({
+      kind: 'note',
+      id: noteId,
+    })
 
     const connectedNodeIds =
-      new Set([nodeId])
+      new Set([noteId])
 
     relations.forEach(
       (relation) => {
         if (
           relation.sourceNoteId
-          === nodeId
+          === noteId
         ) {
           connectedNodeIds.add(
             relation.targetNoteId,
@@ -480,7 +724,7 @@ function GraphPage() {
 
         if (
           relation.targetNoteId
-          === nodeId
+          === noteId
         ) {
           connectedNodeIds.add(
             relation.sourceNoteId,
@@ -489,8 +733,48 @@ function GraphPage() {
       },
     )
 
+    galleryImages
+      .filter(
+        (image) =>
+          image.noteId ===
+          noteId,
+      )
+      .forEach((image) => {
+        connectedNodeIds.add(
+          `image-${image.id}`,
+        )
+      })
+
     setNodes((currentNodes) =>
       currentNodes.map((node) => {
+        const isConnected =
+          connectedNodeIds.has(
+            node.id,
+          )
+
+        if (
+          node.data.kind ===
+          'image'
+        ) {
+          return {
+            ...node,
+
+            style: {
+              ...imageNodeBaseStyle,
+
+              opacity:
+                isConnected
+                  ? 1
+                  : 0.12,
+
+              boxShadow:
+                isConnected
+                  ? '0 0 10px rgba(253, 224, 71, 1), 0 0 30px rgba(253, 224, 71, 0.65)'
+                  : 'none',
+            },
+          }
+        }
+
         const note =
           notes.find(
             (currentNote) =>
@@ -505,12 +789,7 @@ function GraphPage() {
           ?? maturityConfig.seed
 
         const isSelected =
-          node.id === nodeId
-
-        const isConnected =
-          connectedNodeIds.has(
-            node.id,
-          )
+          node.id === noteId
 
         return {
           ...node,
@@ -541,9 +820,43 @@ function GraphPage() {
 
     setEdges((currentEdges) =>
       currentEdges.map((edge) => {
+        if (
+          edge.data?.kind ===
+          'imageRelation'
+        ) {
+          const isConnected =
+            edge.target === noteId
+
+          return {
+            ...edge,
+
+            animated: false,
+
+            style: {
+              stroke:
+                isConnected
+                  ? '#fde047'
+                  : '#57534e',
+
+              strokeWidth:
+                isConnected
+                  ? 2
+                  : 1,
+
+              strokeDasharray:
+                '2 9',
+
+              opacity:
+                isConnected
+                  ? 1
+                  : 0.1,
+            },
+          }
+        }
+
         const isConnected =
-          edge.source === nodeId
-          || edge.target === nodeId
+          edge.source === noteId
+          || edge.target === noteId
 
         return {
           ...edge,
@@ -568,6 +881,170 @@ function GraphPage() {
           },
         }
       }),
+    )
+  }
+
+  function handleImageClick(
+    imageId,
+  ) {
+    const image =
+      galleryImages.find(
+        (currentImage) =>
+          currentImage.id ===
+          imageId,
+      )
+
+    if (!image) {
+      return
+    }
+
+    setSelectedNode({
+      kind: 'image',
+      id: imageId,
+    })
+
+    const imageNodeId =
+      `image-${imageId}`
+
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => {
+        const isImage =
+          node.id ===
+          imageNodeId
+
+        const isRelatedNote =
+          node.id ===
+          image.noteId
+
+        if (
+          node.data.kind ===
+          'image'
+        ) {
+          return {
+            ...node,
+
+            style: {
+              ...imageNodeBaseStyle,
+
+              opacity:
+                isImage
+                  ? 1
+                  : 0.12,
+
+              boxShadow:
+                isImage
+                  ? '0 0 12px rgba(253, 224, 71, 1), 0 0 35px rgba(253, 224, 71, 0.75)'
+                  : 'none',
+            },
+          }
+        }
+
+        const note =
+          notes.find(
+            (currentNote) =>
+              currentNote.id
+              === node.id,
+          )
+
+        const maturity =
+          maturityConfig[
+            note?.maturity
+          ]
+          ?? maturityConfig.seed
+
+        return {
+          ...node,
+
+          style: {
+            ...nodeBaseStyle,
+            borderColor:
+              maturity.borderColor,
+
+            opacity:
+              isRelatedNote
+                ? 1
+                : 0.15,
+
+            boxShadow:
+              isRelatedNote
+                ? '0 0 0 2px #fde047, 0 0 25px rgba(253, 224, 71, 0.25)'
+                : 'none',
+          },
+        }
+      }),
+    )
+
+    setEdges((currentEdges) =>
+      currentEdges.map((edge) => {
+        if (
+          edge.data?.kind ===
+          'imageRelation'
+        ) {
+          const isSelectedEdge =
+            edge.source ===
+            imageNodeId
+
+          return {
+            ...edge,
+
+            animated: false,
+
+            style: {
+              stroke:
+                isSelectedEdge
+                  ? '#fde047'
+                  : '#57534e',
+
+              strokeWidth:
+                isSelectedEdge
+                  ? 2.5
+                  : 1,
+
+              strokeDasharray:
+                '2 9',
+
+              opacity:
+                isSelectedEdge
+                  ? 1
+                  : 0.08,
+            },
+          }
+        }
+
+        return {
+          ...edge,
+
+          animated: false,
+
+          style: {
+            stroke: '#57534e',
+            strokeWidth: 1,
+            opacity: 0.08,
+          },
+        }
+      }),
+    )
+  }
+
+  function handleNodeClick(
+    event,
+    clickedNode,
+  ) {
+    event.stopPropagation()
+
+    if (
+      clickedNode.data.kind ===
+      'image'
+    ) {
+      handleImageClick(
+        clickedNode.data.imageId,
+      )
+
+      return
+    }
+
+    handleNoteClick(
+      clickedNode.id,
     )
   }
 
@@ -625,6 +1102,20 @@ function GraphPage() {
 
           <span className="rounded-full border border-lime-800/60 bg-stone-900 px-3 py-1.5 text-stone-300">
             🌳 Árbol
+          </span>
+
+          <span className="rounded-full border border-yellow-400/40 bg-stone-900 px-3 py-1.5 text-stone-300">
+            ✦ Imagen asociada
+          </span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-xs text-stone-500">
+          <span>
+            Flecha verde = relación entre notas
+          </span>
+
+          <span>
+            Línea amarilla discontinua = imagen asociada a una nota
           </span>
         </div>
       </div>
@@ -710,20 +1201,34 @@ function GraphPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-stone-700 bg-stone-950 px-5 py-4">
-                  <p className="text-sm text-stone-400">
-                    Conexiones
-                  </p>
+                <div className="flex gap-3">
+                  <div className="rounded-xl border border-stone-700 bg-stone-950 px-5 py-4">
+                    <p className="text-sm text-stone-400">
+                      Conexiones
+                    </p>
 
-                  <p className="mt-1 text-2xl font-semibold text-lime-400">
-                    {
-                      selectedRelations
-                        .outgoing.length
-                      +
-                      selectedRelations
-                        .incoming.length
-                    }
-                  </p>
+                    <p className="mt-1 text-2xl font-semibold text-lime-400">
+                      {
+                        selectedRelations
+                          .outgoing.length
+                        +
+                        selectedRelations
+                          .incoming.length
+                      }
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-yellow-900/60 bg-stone-950 px-5 py-4">
+                    <p className="text-sm text-stone-400">
+                      Imágenes
+                    </p>
+
+                    <p className="mt-1 text-2xl font-semibold text-yellow-300">
+                      {
+                        selectedNoteImages.length
+                      }
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -823,6 +1328,117 @@ function GraphPage() {
                         )}
                     </div>
                   )}
+                </div>
+              </div>
+
+              {selectedNoteImages.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="font-medium text-stone-200">
+                    Imágenes asociadas
+                  </h4>
+
+                  <p className="mt-1 text-sm text-stone-500">
+                    Recursos visuales vinculados directamente con esta nota.
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {selectedNoteImages.map(
+                      (image) => (
+                        <button
+                          key={image.id}
+                          type="button"
+                          onClick={() =>
+                            handleImageClick(
+                              image.id,
+                            )
+                          }
+                          className="overflow-hidden rounded-xl border border-stone-700 transition hover:border-yellow-400"
+                        >
+                          <img
+                            src={
+                              image.imageUrl
+                            }
+                            alt={
+                              image.description
+                              || 'Imagen asociada'
+                            }
+                            className="h-20 w-20 object-cover"
+                          />
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {selectedImage && (
+            <section className="mt-6 rounded-2xl border border-yellow-900/60 bg-stone-900 p-6">
+              <p className="text-sm uppercase tracking-[0.2em] text-yellow-300">
+                Imagen seleccionada
+              </p>
+
+              <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,320px)_1fr]">
+                <div className="overflow-hidden rounded-2xl border border-stone-700 bg-stone-950">
+                  <img
+                    src={
+                      selectedImage.imageUrl
+                    }
+                    alt={
+                      selectedImage.description
+                      || 'Imagen del jardín'
+                    }
+                    className="h-full max-h-80 w-full object-contain"
+                  />
+                </div>
+
+                <div>
+                  <div>
+                    <p className="text-sm text-stone-500">
+                      Descripción
+                    </p>
+
+                    <p className="mt-2 text-stone-200">
+                      {
+                        selectedImage.description
+                        || 'Sin descripción.'
+                      }
+                    </p>
+                  </div>
+
+                  <div className="mt-5">
+                    <p className="text-sm text-stone-500">
+                      Relacionada con
+                    </p>
+
+                    <p className="mt-2 font-medium text-stone-200">
+                      {getNoteTitle(
+                        selectedImage.noteId,
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="mt-5">
+                    <p className="text-sm text-stone-500">
+                      Añadida
+                    </p>
+
+                    <p className="mt-2 text-stone-300">
+                      {new Date(
+                        selectedImage.createdAt,
+                      ).toLocaleString(
+                        'es-MX',
+                      )}
+                    </p>
+                  </div>
+
+                  <Link
+                    to="/gallery"
+                    className="mt-6 inline-block rounded-xl bg-yellow-300 px-5 py-3 text-sm font-medium text-stone-950 transition hover:bg-yellow-200"
+                  >
+                    Ver en galería →
+                  </Link>
                 </div>
               </div>
             </section>

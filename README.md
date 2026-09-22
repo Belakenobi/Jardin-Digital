@@ -4,20 +4,24 @@ Aplicación web para cultivar conocimiento personal mediante notas, relaciones e
 
 ## Estado actual
 
-Actualizado al **21 de septiembre de 2026**. Módulos **0–9 implementados**, incluido el frontend. El backend cuenta con pruebas manuales registradas; el frontend compila y pasa ESLint. Las pruebas automatizadas y la cobertura >=80 % siguen pendientes.
+Actualizado al **22 de septiembre de 2026**. Módulos **0–10 implementados**, incluidos el frontend y el grafo interactivo. El backend cuenta con pruebas manuales registradas; el frontend compila y pasa ESLint. Las pruebas automatizadas y la cobertura >=80 % siguen pendientes.
 
 - Registro, login, rutas protegidas y sesión persistida en el navegador, con renovación de tokens ante respuestas `401` y cierre local de sesión.
 - Dashboard con resumen del jardín, conteos por madurez y notas recientes.
 - Creación del jardín y edición de perfil, nombre, descripción y visibilidad.
 - CRUD de notas con filtro por madurez; creación, consulta y eliminación de relaciones y backlinks.
 - Galería privada: carga de JPG, PNG y WEBP (hasta 5 MiB), edición de descripción/asociación con notas y eliminación.
+- Grafo protegido con React Flow y distribución mediante d3-force: notas por madurez, relaciones dirigidas, zoom, arrastre y resaltado de conexiones/backlinks.
+- Imágenes asociadas como nodos del grafo, con miniaturas y panel de detalle; navegación desde la vista previa a la nota completa resaltada.
 - Interfaz adaptable con estados de carga, mensajes y confirmación de eliminaciones.
 
-**Siguiente:** Módulo 10 — grafo interactivo con React Flow. También quedan pendientes el panel administrativo, acceso de visitantes, pruebas automatizadas, CI/CD, despliegue y evaluaciones de seguridad/calidad.
+**Siguiente:** Módulo 11 — panel administrativo y visitante básico. También quedan pendientes registrar la validación funcional integral del frontend/grafo, pruebas automatizadas, CI/CD, despliegue y evaluaciones de seguridad/calidad.
+
+El grafo reutiliza la API existente y muestra solo imágenes vinculadas a notas. Las posiciones se conservan en memoria; las relaciones se administran desde su módulo. Build y lint comprobados el 22 de septiembre; Vite advierte de un archivo JavaScript principal mayor de 500 kB, pendiente de optimización.
 
 ## Stack y estructura
 
-- `client/`: React 19, Vite 8, Tailwind CSS 4 y React Router.
+- `client/`: React 19, Vite 8, Tailwind CSS 4, React Router, React Flow (`@xyflow/react`) y `d3-force`.
 - `server/`: API REST con Node.js, Express y Multer; Docker con Node.js 24 Alpine.
 - `supabase/migrations/`: PostgreSQL, restricciones y políticas RLS. Supabase también proporciona Auth y Storage.
 - `docs/`: espacio para evidencias, pruebas y calidad.

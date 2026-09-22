@@ -298,3 +298,217 @@ Módulo 6 completado: creación, consulta de relaciones/backlinks y eliminación
 
 ### Siguiente paso
 Módulo 7 — Galería / Supabase Storage.
+
+
+## 17–18 de septiembre de 2026 — Módulo 7: Galería / Supabase Storage
+
+### Estado
+Completado a nivel backend y pruebas manuales en Postman.
+
+### Objetivo
+Implementar la galería visual con archivos reales en Supabase Storage, metadatos en PostgreSQL y Express como intermediario, usando JWT y RLS.
+
+### Trabajo realizado
+- Se creó manualmente el bucket `gallery` en Supabase Dashboard: PRIVATE, máximo 5 MB y MIME `image/jpeg`, `image/png`, `image/webp`.
+- Se configuraron exactamente tres políticas sobre `storage.objects` para `authenticated`: INSERT, SELECT y DELETE, con `bucket_id = 'gallery' AND (storage.foldername(name))[1] = auth.uid()::text`. Cada persona opera solo en su carpeta. No se agregó UPDATE porque no se reemplazan archivos físicos. No existe una migración que reproduzca esta configuración de Storage.
+- Se agregó Multer 2.4.0, registrado en `server/package.json` y `server/package-lock.json`. El nuevo `server/src/middleware/upload.middleware.js` exporta `uploadGalleryImage`, con `memoryStorage()`, Buffer temporal, límite `5 * 1024 * 1024` bytes y filtro de los tres MIME permitidos.
+- Se crearon `server/src/routes/gallery.routes.js`, `server/src/controllers/gallery.controller.js` y `server/src/services/gallery.service.js`; `server/src/app.js` registra `app.use("/api/gallery", galleryRoutes)`. Flujo: route -> middleware -> controller -> service -> Supabase PostgreSQL / Storage.
+- La tabla existente `public.gallery_images` guarda `id`, `garden_id`, `storage_path`, `description` nullable, `note_id` nullable, `created_at` y `updated_at`. `storage_path` contiene `<USER_UUID>/<IMAGE_UUID>.<extension>`, sin `gallery/`; la relación con Storage la mantiene el servicio, sin FK ni sincronización automática.
+
+Endpoints implementados:
+- `POST /api/gallery` recibe multipart/form-data mediante `uploadGalleryImage.single("image")`: archivo `image` obligatorio, `description` y `noteId` opcionales. Comprueba jardín y pertenencia de la nota antes de subir; genera un nombre con `randomUUID()`, sube el Buffer e inserta metadatos. Si falla la inserción, intenta borrar el objeto recién subido.
+- `GET /api/gallery` devuelve metadatos e `imageUrl` mediante `createSignedUrl(storage_path, 60 * 60)`. La URL dura una hora; otra consulta solicita nuevas URLs, sin limitar a una hora el uso de la galería.
+- `PATCH /api/gallery/:id` modifica únicamente `description` y/o `noteId`, validando que la nota pertenezca al jardín. `DELETE /api/gallery/:id` busca la imagen del jardín autenticado, borra el objeto y después la fila.
+
+### Pruebas realizadas
+Pruebas manuales reportadas por la estudiante al cerrar el módulo; no se repitieron contra Supabase durante esta actualización documental.
+
+- GET: `200 OK`; POST: `201 Created`; PATCH y DELETE: `200 OK`.
+- Carga independiente con `note_id = NULL` y carga asociada a una nota real; archivos visibles en `gallery` y filas en `public.gallery_images`.
+- URL firmada abierta en navegador, con imagen visible.
+- PATCH: cambia `description` y `updatedAt`, conserva `storagePath` y `createdAt`.
+- DELETE: mensaje `Gallery image deleted successfully`; desaparición comprobada tanto en Storage como en PostgreSQL.
+- POST con UUID válido de nota inexistente: tras la corrección, `400 Bad Request` y `{ "status": "error", "message": "Note not found in your garden" }`. La validación ocurre antes de guardar archivos o metadatos.
+- `node --check` sin errores en `src/middleware/upload.middleware.js`, `src/routes/gallery.routes.js`, `src/controllers/gallery.controller.js`, `src/services/gallery.service.js`, `src/middleware/error.middleware.js` y `src/app.js`, desde `server/`. Un intento buscó accidentalmente `error.middleware.jsq` por un typo en terminal; se repitió correctamente. No fue un fallo del código. Estas seis comprobaciones de sintaxis también se repitieron al actualizar la documentación.
+
+### Problemas encontrados
+Al configurar DELETE, Dashboard exigió también SELECT y generó una política SELECT duplicada. Se eliminó manualmente la adicional; quedaron solo INSERT, SELECT y DELETE.
+
+Un `noteId` con UUID válido pero inexistente produjo inicialmente `500`: el servicio asignaba `error.statusCode = 400`, pero el manejador consultaba solo `error.status`. Se corrigió `server/src/middleware/error.middleware.js` con `error.statusCode ?? error.status`. Los códigos enteros 4xx conservan su mensaje y estado; los errores inesperados siguen como `500` con `Unexpected server error`. La mejora es transversal al backend y facilita la integración del frontend y las pruebas posteriores.
+
+### Decisiones
+- Mantener el bucket privado, con carpetas por USER_UUID y URLs firmadas de una hora.
+- Admitir JPG/PNG/WEBP y máximo 5 MB.
+- Asociar cada imagen con cero o una nota; PATCH solo modifica metadatos.
+- Mantener Express como intermediario para las cargas del futuro frontend React.
+- Tratar Storage y PostgreSQL como operaciones separadas, sin transacción conjunta; la limpieza tras un fallo de inserción es un intento, no una garantía de atomicidad.
+
+### Aprendizajes
+Storage conserva archivos y PostgreSQL sus metadatos; `storage_path` conecta ambos a nivel de aplicación. Las políticas del bucket son distintas de las de la tabla. Una URL firmada caduca y puede solicitarse otra. Unificar `statusCode` y `status` evita convertir errores de negocio en respuestas 500.
+
+### Resultado
+Módulos 0–7 completados dentro de su alcance de preparación y backend. Galería implementada y validada manualmente; pruebas automatizadas Jest/Supertest y cobertura >=80 % aún pendientes.
+
+### Siguiente paso
+Módulo 8 — Revisión completa del backend en Postman; después Módulo 9 — Frontend. Siguen pendientes React/Vite/Tailwind funcional, React Flow, admin/visitante básico, testing, CI/CD, deploy, OWASP ZAP, SonarQube, evidencias e informe final.
+
+
+## 19 de septiembre de 2026 — Módulo 8: Revisión completa del backend en Postman
+
+### Estado
+Completado funcionalmente y probado manualmente. Pendiente de revisión documental y versionado por la estudiante.
+
+### Objetivo
+Cerrar la revisión del backend existente, comprobar relaciones, galería y aislamiento entre usuarios, y registrar la corrección final del manejo de errores de carga.
+
+### Trabajo realizado
+Se contrastó el estado actual de `server/src/app.js`, las rutas, controladores y servicios de notas, relaciones y galería, los middleware de autenticación, carga y errores, y `supabase/migrations/20260910000000_initial_schema.sql`. Las funcionalidades de relaciones y galería se implementaron en los módulos 6 y 7; este módulo consolida su verificación y cierre.
+
+- Relaciones: `server/src/routes/relation.routes.js`, `server/src/controllers/relation.controller.js` y `server/src/services/relation.service.js` operan sobre `public.note_relations`. `POST /api/relations` recibe `sourceNoteId` y `targetNoteId`, comprueba ambas notas dentro del jardín propio, rechaza autorrelaciones con `400` y pares dirigidos ya existentes con `409`. SQL refuerza la integridad mediante CHECK, UNIQUE y FK compuestas del mismo jardín.
+- `GET /api/relations/note/:noteId` devuelve `relations.outgoing` e `incoming`; los backlinks son relaciones entrantes, sin insertar una relación inversa. `DELETE /api/relations/:id` verifica pertenencia al jardín y elimina la relación.
+- Galería: `server/src/routes/gallery.routes.js`, `server/src/controllers/gallery.controller.js` y `server/src/services/gallery.service.js` conectan `public.gallery_images` con el bucket `gallery`. `POST /api/gallery` recibe multipart/form-data con `image` obligatorio y `description`/`noteId` opcionales. La nota se valida antes de subir y debe pertenecer al jardín propio.
+- El archivo se guarda como `<USER_UUID>/<IMAGE_UUID>.<extension>` dentro de `gallery`; `storage_path` no incluye el bucket. Si falla la inserción de metadatos, el servicio intenta retirar el archivo recién subido.
+- `GET /api/gallery` lista por creación descendente y agrega `imageUrl` con `createSignedUrl(storage_path, 60 * 60)`. Las URLs firmadas duran una hora y permiten visualizar imágenes privadas; una nueva consulta solicita URLs nuevamente. POST y PATCH devuelven metadatos sin `imageUrl`.
+- `PATCH /api/gallery/:id` actualiza descripción y/o asociación. `noteId: null` desasocia; omitirlo conserva la asociación. Una nota inexistente o ajena con UUID válido produce `400`, `Note not found in your garden`.
+- `DELETE /api/gallery/:id` busca la imagen del jardín propio, elimina el objeto de Storage y después el registro de `gallery_images`. Si falla Storage, no intenta borrar la fila. No hay transacción conjunta: un fallo posterior de PostgreSQL puede dejar metadatos sin archivo.
+- `server/src/middleware/upload.middleware.js` usa `memoryStorage()` y `single("image")` se aplica en la ruta. Admite los MIME `image/jpeg`, `image/png` y `image/webp`. El límite real es `5 * 1024 * 1024` = 5 242 880 bytes (5 MiB; mensaje de error: 5 MB). El filtro revisa el MIME declarado, sin inspección binaria ni validación independiente de la extensión.
+- Seguridad: las rutas requieren `authenticate`, validan el JWT y usan `request.supabase` con el token del usuario. Los servicios obtienen el jardín mediante `gardens.user_id` y comprueban las notas por `id` y `garden_id`; actualizar una nota exige consultar primero su pertenencia. Consultar o modificar una nota ajena mediante la API devuelve `404`. RLS complementa estas comprobaciones; las políticas SQL también prevén lectura pública y administración, mientras estas rutas operan sobre el jardín propio.
+
+### Problemas encontrados y corrección final
+Un campo multipart incorrecto (`iamge` en lugar de `image`) se trataba como error inesperado y terminaba en `500 Internal Server Error`. La corrección ya presente en `server/src/middleware/error.middleware.js` reconoce `error.name === "MulterError"` antes de evaluar `statusCode`/`status` y devuelve `400 Bad Request` con `{ status: "error", message }`:
+
+- `LIMIT_FILE_SIZE`: `Image file must be 5 MB or less`.
+- `LIMIT_UNEXPECTED_FILE`: `Unexpected file field. Use "image" as the file field name`.
+- Otros errores de Multer conservan `error.message` con estado `400`.
+
+El rechazo de PDF procede del filtro MIME: asigna `statusCode = 400` y el mensaje `Only JPG, PNG and WEBP images are allowed`. Se conserva el manejo general de códigos enteros 4xx mediante `error.statusCode ?? error.status`; los errores inesperados siguen en `500` con `Unexpected server error`.
+
+### Pruebas realizadas
+Pruebas manuales de cierre verificadas y reportadas por la estudiante. Se contrastaron rutas y comportamiento con el código local; no se ejecutaron nuevamente peticiones a Supabase durante esta actualización documental.
+
+| Caso | Resultado reportado |
+| --- | --- |
+| Crear relación válida: `POST /api/relations` | `201` |
+| Consultar origen y destino: `GET /api/relations/note/:noteId` | `200`; relación en outgoing/incoming |
+| Repetir la relación | `409` |
+| Relacionar una nota consigo misma | `400` |
+| Eliminar relación: `DELETE /api/relations/:id` | `200` |
+| Consultar después de eliminar | Arrays outgoing/incoming vacíos |
+| Listar galería: `GET /api/gallery` | `200` |
+| Subir JPG válido: `POST /api/gallery` | `201`; archivo presente en Supabase Storage |
+| Consultar galería y abrir URL firmada | Imagen visible mediante URL funcional |
+| Actualizar descripción: `PATCH /api/gallery/:id` | `200` |
+| Asociar imagen con nota válida mediante PATCH | `200` |
+| Desasociar con `noteId: null` mediante PATCH | `200` |
+| Asociar con nota inexistente/ajena | `400` |
+| Eliminar imagen: `DELETE /api/gallery/:id` | `200`; eliminación comprobada del registro y del archivo |
+| Otro usuario consulta una nota ajena: `GET /api/notes/:id` | `404` |
+| Otro usuario modifica una nota ajena: `PATCH /api/notes/:id` | `404` |
+| Enviar campo de archivo `iamge` en lugar de `image` | `400`; mensaje indica el campo correcto |
+| Intentar subir PDF | `400`; mensaje indica que solo JPG, PNG y WEBP están permitidos |
+
+El límite de tamaño y el manejo de `LIMIT_FILE_SIZE` se verificaron en código; no se reportó una prueba manual de archivo sobredimensionado. No se atribuyen pruebas automatizadas ni cobertura a estas comprobaciones: `server/tests/` conserva solo `.gitkeep` y `server/package.json` no define script de pruebas ni dependencias Jest/Supertest.
+
+### Decisiones y límites vigentes
+- Conservar el bucket privado y las políticas manuales de Storage registradas en el Módulo 7. No hay migración del bucket/políticas de Storage y no se consultó el Dashboard durante esta revisión documental.
+- Mantener el alcance real de las validaciones: sigue pendiente validar formato UUID; un UUID mal formado puede terminar en `500`. La comprobación previa de duplicados devuelve `409`, pero el error UNIQUE de una inserción concurrente no tiene un mapeo específico a `409`.
+- Conservar el historial de módulos anteriores. Se corrigió el estado desactualizado que dejaba el Módulo 8 pendiente y la afirmación del contexto maestro que negaba el manejo específico de Multer.
+- En esta actualización solo se modificaron README, bitácora y contexto maestro local. La corrección funcional del middleware ya existía en staging; no se modificó código, migraciones ni configuración, ni se ejecutó git add, commit o push.
+
+### Aprendizajes
+Los errores de un middleware de carga requieren clasificación explícita para devolver respuestas comprensibles al cliente. La comprobación funcional de una eliminación de galería debe incluir tanto Storage como PostgreSQL. Las pruebas con otra identidad permiten verificar el aislamiento aplicado por la API.
+
+### Resultado
+Módulos 0–8 completados dentro de su alcance de preparación, backend y revisión manual. Módulo 8 cerrado funcionalmente y probado; cambios documentales listos para revisión antes del commit final.
+
+### Siguiente paso
+Módulo 9 — Frontend React/Vite/Tailwind. Siguen pendientes integración de sesión, React Flow, admin/visitante básico, SMTP propio, pruebas automatizadas y cobertura >=80 %, CI/CD, despliegue, OWASP ZAP, SonarQube, evidencias e informe final.
+
+
+## 20–21 de septiembre de 2026 — Módulo 9: Frontend
+
+### Estado
+Implementado. Validación funcional integral en navegador pendiente de registrar.
+
+### Objetivo
+Integrar el frontend React con los módulos existentes del backend y permitir administrar el jardín desde una interfaz web.
+
+### Trabajo realizado
+- Se configuró el cliente con React 19, Vite 8, Tailwind CSS 4 y React Router.
+- Se implementaron registro, login y rutas protegidas mediante `ProtectedRoute`, con consulta de identidad a `/api/auth/me`.
+- Se creó `AppLayout` con navegación adaptable y cierre de sesión local.
+- Se integró el dashboard con resumen del jardín, conteos por madurez, imágenes y notas recientes.
+- Se implementaron edición del perfil, creación inicial del jardín y actualización de nombre, descripción y visibilidad.
+- Se conectaron el CRUD de notas y filtro por madurez, las relaciones salientes/backlinks y la galería con carga, edición y eliminación.
+- Se separaron páginas, componentes y servicios HTTP; se agregó `ConfirmDialog` para confirmar eliminaciones, junto con estados de carga y mensajes.
+- Se persistió la sesión en `localStorage` mediante `dg_session`. El cliente envía Bearer Token, maneja JSON/FormData y solicita renovación ante un `401`, compartiendo la renovación entre solicitudes concurrentes y reintentando una vez.
+- Se agregó `POST /api/auth/refresh`, que recibe `refreshToken` y renueva la sesión mediante Supabase Auth. Si la renovación falla o continúa el `401`, el cliente limpia la sesión y redirige al login.
+
+### Validaciones realizadas
+El contexto maestro registra `npm run build` y `npm run lint` correctos el 21 de septiembre. La revisión documental actual contrastó las rutas, servicios y páginas; las comprobaciones del frontend actual se registran en el Módulo 10.
+
+No se atribuyen nuevas pruebas manuales en navegador o Supabase. Queda pendiente registrar el recorrido funcional completo, incluida la renovación de sesión y la creación inicial del jardín.
+
+### Decisiones
+- Consumir Express mediante `VITE_API_URL`; no utilizar directamente Supabase desde el frontend.
+- Conservar una estructura modular y reutilizar el cliente HTTP para todas las páginas.
+- Cerrar sesión localmente, sin revocación remota ni renovación preventiva por temporizador.
+
+### Aprendizajes
+Separar servicios y páginas facilita reutilizar la autenticación y el manejo de errores. La interfaz debe contemplar tanto un jardín con datos como una cuenta que todavía no ha creado su jardín.
+
+### Resultado
+Frontend integrado con los módulos del backend. Compilación y lint registrados; pruebas automatizadas y cobertura >=80 % pendientes.
+
+### Siguiente paso
+Módulo 10 — Grafo interactivo con React Flow.
+
+
+## 22 de septiembre de 2026 — Módulo 10: Grafo interactivo e imágenes asociadas
+
+### Estado
+Implementado en el código local. Compilación y lint correctos; validación funcional integral en navegador pendiente de registrar.
+
+### Objetivo
+Representar visualmente las notas, sus relaciones y las imágenes asociadas, permitiendo explorar conexiones y abrir el contenido de una nota desde el grafo.
+
+### Trabajo realizado
+- Se instalaron `@xyflow/react` (React Flow) y `d3-force`, y se creó `client/src/pages/GraphPage.jsx`.
+- Se agregó la ruta protegida `/graph` y el acceso desde la navegación de `AppLayout`.
+- Se reutilizan `GET /api/notes`, `GET /api/gallery` y `GET /api/relations/note/:noteId`. Se consultan las relaciones de cada nota y se toman las salientes para construir las aristas dirigidas, sin duplicarlas por sus backlinks.
+- Se representa cada nota con su título, emoji y color según madurez: semilla, brote o árbol. Las relaciones entre notas se muestran con flechas verdes.
+- Se distribuyen las notas mediante una simulación de fuerzas con atracción entre notas relacionadas, repulsión, centrado y prevención de solapamientos. La distribución se calcula al cargar el grafo.
+- Se incorporaron desplazamiento, zoom, controles, ajuste inicial de la vista y arrastre de nodos.
+- Al seleccionar una nota, se resaltan sus conexiones entrantes/salientes y sus imágenes; los demás elementos se atenúan. El panel muestra madurez, número de conexiones, backlinks, enlaces salientes y una vista previa de hasta 250 caracteres de contenido, con puntos suspensivos si se recorta.
+- El enlace `Abrir nota completa` navega a `/notes?selected=<id>`. `NotesPage` identifica la tarjeta, la resalta y desplaza la vista hacia ella; allí se muestra el contenido completo.
+- Se agregaron nodos circulares amarillos para imágenes con `noteId`, distribuidos alrededor de la nota asociada y unidos mediante líneas amarillas discontinuas. Las imágenes independientes permanecen en la galería y no aparecen como nodos del grafo.
+- El panel de la nota permite seleccionar miniaturas de sus imágenes. Al seleccionar una imagen, se resaltan su nodo, su enlace y su nota; el panel muestra imagen, descripción, nota asociada, fecha y acceso a `/gallery`.
+- Se utilizan las URLs firmadas devueltas por la galería. Se agregó `.image-node` en `index.css` para ocultar los puntos de conexión de estos nodos.
+- Un clic en el fondo limpia la selección y restablece el aspecto general. Se contemplan estados de carga, error y jardín sin notas.
+
+### Validaciones realizadas
+Revisión del commit `0e94b8d` y de los cambios locales existentes en `GraphPage.jsx` e `index.css`. La integración inicial del grafo y la navegación a notas están versionadas; la ampliación visual con imágenes forma parte de los cambios locales revisados.
+
+- `npm run build` en `client/`: correcto, 225 módulos transformados.
+- `npm run lint` en `client/`: correcto, sin errores reportados.
+- Vite emitió una advertencia por el archivo JavaScript principal de 509,03 kB minificado; la compilación terminó correctamente. Queda como mejora evaluar división de código por rutas.
+- Se contrastaron carga de datos, dirección de relaciones, selección, navegación y asociación de imágenes con el código. No se realizaron nuevas pruebas en navegador, Postman o Supabase.
+
+Estas comprobaciones no constituyen pruebas automatizadas ni un reporte de cobertura. Queda pendiente registrar el recorrido visual con notas de distintas madureces, relaciones entrantes/salientes, imágenes asociadas, grafo vacío y navegación a la nota completa.
+
+### Decisiones y límites vigentes
+- Reutilizar los servicios y permisos existentes; no agregar endpoints ni modificar el modelo de datos para visualizar el grafo.
+- Distinguir las relaciones entre notas de las asociaciones de imágenes. Estas últimas proceden de `gallery_images.note_id`, no de nuevas filas en `note_relations`.
+- Mantener las posiciones y la selección en memoria; los movimientos no se guardan en PostgreSQL. La creación y eliminación persistente de relaciones se realiza desde el módulo de relaciones.
+- Consultar relaciones por cada nota; queda pendiente evaluar el rendimiento con jardines grandes.
+- Conservar el historial de la bitácora: se recuperaron del historial Git las entradas existentes de los módulos 7 y 8 y se incorporó el registro del frontend a partir del contexto maestro.
+- Esta actualización modifica únicamente bitácora, README y contexto maestro local. Los cambios funcionales revisados ya existían; no se realizó commit ni push.
+
+### Aprendizajes
+El grafo puede construirse con los datos existentes del jardín sin cambiar el backend. Diferenciar visualmente las relaciones dirigidas y las asociaciones de imágenes ayuda a comprender el significado de cada conexión. El identificador de una nota en la URL permite conectar la exploración del grafo con su lectura completa.
+
+### Resultado
+Módulos 0–10 implementados dentro de su alcance. El grafo integra notas, relaciones, backlinks e imágenes asociadas, con navegación hacia el contenido y comprobaciones locales de build/lint correctas.
+
+### Siguiente paso
+Módulo 11 — Admin y visitante básico. Registrar además la validación funcional integral del frontend y grafo. Siguen pendientes SMTP propio, pruebas automatizadas y cobertura >=80 %, CI/CD, despliegue, OWASP ZAP, SonarQube, evidencias e informe final.
