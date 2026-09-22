@@ -14,6 +14,9 @@ import NotesPage from './pages/NotesPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import RelationsPage from './pages/RelationsPage.jsx'
+import GraphPage from './pages/GraphPage.jsx'
+
+
 
 function App() {
   return (
@@ -58,6 +61,11 @@ function App() {
         <Route
           path="/relations"
           element={<RelationsPage />}
+        />
+
+        <Route
+          path="/graph"
+          element={<GraphPage />}
         />
 
         <Route

@@ -3,7 +3,10 @@ import {
   useState,
 } from 'react'
 
-import { Link } from 'react-router-dom'
+import {
+  Link,
+  useSearchParams,
+} from 'react-router-dom'
 
 import ConfirmDialog from '../components/ConfirmDialog.jsx'
 
@@ -17,6 +20,12 @@ import {
 import { getGarden } from '../services/garden.js'
 
 function NotesPage() {
+  const [searchParams] =
+    useSearchParams()
+
+  const selectedNoteId =
+    searchParams.get('selected')
+
   const [hasGarden, setHasGarden] =
     useState(true)
 
@@ -110,7 +119,9 @@ function NotesPage() {
           await getGarden()
           setHasGarden(true)
         } catch (gardenError) {
-          if (gardenError.status === 404) {
+          if (
+            gardenError.status === 404
+          ) {
             setHasGarden(false)
             return
           }
@@ -131,6 +142,37 @@ function NotesPage() {
 
     loadPage()
   }, [])
+
+  useEffect(() => {
+    if (
+      !selectedNoteId ||
+      isLoading ||
+      isLoadingNotes
+    ) {
+      return
+    }
+
+    const selectedElement =
+      document.getElementById(
+        `note-${selectedNoteId}`,
+      )
+
+    if (!selectedElement) {
+      return
+    }
+
+    requestAnimationFrame(() => {
+      selectedElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    })
+  }, [
+    selectedNoteId,
+    notes,
+    isLoading,
+    isLoadingNotes,
+  ])
 
   async function loadNotes(
     maturity = maturityFilter,
@@ -266,7 +308,8 @@ function NotesPage() {
       return
     }
 
-    const noteId = noteToDelete.id
+    const noteId =
+      noteToDelete.id
 
     setError('')
     setNoteMessage('')
@@ -549,169 +592,181 @@ function NotesPage() {
           )}
 
         <div className="mt-6 space-y-4">
-          {notes.map((note) => (
-            <article
-              key={note.id}
-              className="rounded-xl border border-stone-700 bg-stone-950 p-5"
-            >
-              {editingNoteId ===
-              note.id ? (
-                <form
-                  onSubmit={(event) =>
-                    handleUpdateNote(
-                      event,
-                      note.id,
-                    )
-                  }
-                  className="space-y-4"
-                >
-                  <input
-                    value={
-                      editNoteTitle
-                    }
-                    onChange={(event) =>
-                      setEditNoteTitle(
-                        event.target.value,
-                      )
-                    }
-                    className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
-                    required
-                  />
+          {notes.map((note) => {
+            const isSelected =
+              selectedNoteId ===
+              note.id
 
-                  <textarea
-                    value={
-                      editNoteContent
-                    }
-                    onChange={(event) =>
-                      setEditNoteContent(
-                        event.target.value,
+            return (
+              <article
+                id={`note-${note.id}`}
+                key={note.id}
+                className={[
+                  'rounded-xl bg-stone-950 p-5 transition',
+                  isSelected
+                    ? 'border border-lime-400 ring-2 ring-lime-400/20'
+                    : 'border border-stone-700',
+                ].join(' ')}
+              >
+                {editingNoteId ===
+                note.id ? (
+                  <form
+                    onSubmit={(event) =>
+                      handleUpdateNote(
+                        event,
+                        note.id,
                       )
                     }
-                    className="min-h-32 w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
-                  />
-
-                  <select
-                    value={
-                      editNoteMaturity
-                    }
-                    onChange={(event) =>
-                      setEditNoteMaturity(
-                        event.target.value,
-                      )
-                    }
-                    className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
+                    className="space-y-4"
                   >
-                    <option value="seed">
-                      🌱 Semilla
-                    </option>
-
-                    <option value="budding">
-                      🌿 Brote
-                    </option>
-
-                    <option value="tree">
-                      🌳 Árbol
-                    </option>
-                  </select>
-
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="submit"
-                      disabled={
-                        isUpdatingNote
+                    <input
+                      value={
+                        editNoteTitle
                       }
-                      className="rounded-xl bg-lime-400 px-5 py-3 text-stone-950 disabled:opacity-50"
-                    >
-                      {isUpdatingNote
-                        ? 'Guardando...'
-                        : 'Guardar cambios'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={
-                        cancelEditingNote
+                      onChange={(event) =>
+                        setEditNoteTitle(
+                          event.target.value,
+                        )
                       }
-                      className="rounded-xl border border-stone-700 px-5 py-3"
+                      className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
+                      required
+                    />
+
+                    <textarea
+                      value={
+                        editNoteContent
+                      }
+                      onChange={(event) =>
+                        setEditNoteContent(
+                          event.target.value,
+                        )
+                      }
+                      className="min-h-32 w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
+                    />
+
+                    <select
+                      value={
+                        editNoteMaturity
+                      }
+                      onChange={(event) =>
+                        setEditNoteMaturity(
+                          event.target.value,
+                        )
+                      }
+                      className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
                     >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <div className="flex flex-wrap justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-medium">
-                        {note.title}
-                      </h3>
+                      <option value="seed">
+                        🌱 Semilla
+                      </option>
 
-                      <p className="mt-2 text-sm text-lime-400">
-                        {getMaturityLabel(
-                          note.maturity,
-                        )}
-                      </p>
-                    </div>
+                      <option value="budding">
+                        🌿 Brote
+                      </option>
 
-                    <div className="flex gap-2">
+                      <option value="tree">
+                        🌳 Árbol
+                      </option>
+                    </select>
+
+                    <div className="flex flex-wrap gap-3">
                       <button
-                        type="button"
-                        onClick={() =>
-                          startEditingNote(
-                            note,
-                          )
-                        }
-                        className="rounded-lg border border-stone-700 px-4 py-2"
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          requestDeleteNote(
-                            note,
-                          )
-                        }
+                        type="submit"
                         disabled={
-                          deletingNoteId ===
-                          note.id
+                          isUpdatingNote
                         }
-                        className="rounded-lg border border-red-900 px-4 py-2 text-red-400 disabled:opacity-50"
+                        className="rounded-xl bg-lime-400 px-5 py-3 text-stone-950 disabled:opacity-50"
                       >
-                        {deletingNoteId ===
-                        note.id
-                          ? 'Eliminando...'
-                          : 'Eliminar'}
+                        {isUpdatingNote
+                          ? 'Guardando...'
+                          : 'Guardar cambios'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={
+                          cancelEditingNote
+                        }
+                        className="rounded-xl border border-stone-700 px-5 py-3"
+                      >
+                        Cancelar
                       </button>
                     </div>
-                  </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-medium">
+                          {note.title}
+                        </h3>
 
-                  <p className="mt-4 whitespace-pre-wrap text-stone-300">
-                    {note.content}
-                  </p>
+                        <p className="mt-2 text-sm text-lime-400">
+                          {getMaturityLabel(
+                            note.maturity,
+                          )}
+                        </p>
+                      </div>
 
-                  <p className="mt-4 text-xs text-stone-500">
-                    Plantada:{' '}
-                    {new Date(
-                      note.createdAt,
-                    ).toLocaleString(
-                      'es-MX',
-                    )}
-                  </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            startEditingNote(
+                              note,
+                            )
+                          }
+                          className="rounded-lg border border-stone-700 px-4 py-2"
+                        >
+                          Editar
+                        </button>
 
-                  <p className="mt-1 text-xs text-stone-500">
-                    Último riego:{' '}
-                    {new Date(
-                      note.updatedAt,
-                    ).toLocaleString(
-                      'es-MX',
-                    )}
-                  </p>
-                </>
-              )}
-            </article>
-          ))}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            requestDeleteNote(
+                              note,
+                            )
+                          }
+                          disabled={
+                            deletingNoteId ===
+                            note.id
+                          }
+                          className="rounded-lg border border-red-900 px-4 py-2 text-red-400 disabled:opacity-50"
+                        >
+                          {deletingNoteId ===
+                          note.id
+                            ? 'Eliminando...'
+                            : 'Eliminar'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 whitespace-pre-wrap text-stone-300">
+                      {note.content}
+                    </p>
+
+                    <p className="mt-4 text-xs text-stone-500">
+                      Plantada:{' '}
+                      {new Date(
+                        note.createdAt,
+                      ).toLocaleString(
+                        'es-MX',
+                      )}
+                    </p>
+
+                    <p className="mt-1 text-xs text-stone-500">
+                      Último riego:{' '}
+                      {new Date(
+                        note.updatedAt,
+                      ).toLocaleString(
+                        'es-MX',
+                      )}
+                    </p>
+                  </>
+                )}
+              </article>
+            )
+          })}
         </div>
       </section>
 
@@ -738,4 +793,3 @@ function NotesPage() {
 }
 
 export default NotesPage
-

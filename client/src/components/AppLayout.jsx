@@ -60,6 +60,14 @@ function AppLayout() {
                 Relaciones
               </NavLink>
 
+
+              <NavLink
+                to="/graph"
+                className={getLinkClass}
+              >
+                Grafo
+              </NavLink>
+
               <NavLink
                 to="/gallery"
                 className={getLinkClass}
