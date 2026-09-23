@@ -572,3 +572,42 @@ Módulos 0–11 implementados dentro de su alcance. Digital Garden ya permite ex
 
 ### Siguiente paso
 Módulo 12 — ampliar pruebas automatizadas con Jest/Supertest y medir cobertura >=80 %. También deben registrarse las pruebas funcionales integrales del frontend, grafo, experiencia pública y panel administrativo antes del cierre.
+
+
+## 23 de septiembre de 2026 — Módulo 12: pruebas automatizadas y cobertura
+
+### Estado
+Completado. Las suites Jest y legacy terminan correctamente y el requisito global de cobertura se supera en las cuatro métricas.
+
+### Objetivo
+Formalizar las pruebas automatizadas del backend con Jest y Supertest, comprobar validaciones, errores, autenticación, autorización, controladores, servicios y rutas HTTP, y alcanzar al menos 80 % de cobertura global sin depender de servicios externos reales.
+
+### Trabajo realizado
+- Se configuró Jest para el backend ESM con entorno `node`, proveedor de cobertura V8 y medición de todos los archivos `src/**/*.js`.
+- Se fijaron umbrales globales de 80 % para statements, branches, functions y lines.
+- Se conservó `tests/validation.test.js` con `node:test` mediante el script `npm run test:legacy`; las nuevas pruebas Jest se aislaron en `tests/jest/`.
+- Se añadieron pruebas unitarias para validadores, middleware de errores y carga, autenticación y roles, controladores y servicios.
+- Se simuló completamente el cliente Supabase, incluidas las cadenas de consulta, autenticación y operaciones de Storage. Las pruebas verifican resultados, errores, transformaciones, ownership e interacciones relevantes sin realizar conexiones de red.
+- Se añadieron pruebas HTTP con Supertest para salud de la API y base de datos, errores 404 y JSON malformado, CORS, rutas protegidas, autorización administrativa y operaciones representativas de jardines, notas, relaciones, galería y vistas públicas.
+- Las pruebas de galería comprueban multipart y filtro MIME con buffers locales; no cargan archivos a Storage real.
+
+### Resultados finales
+- Jest: 22 suites y 289 pruebas correctas.
+- Legacy: 22 pruebas correctas con `node:test`.
+- Supertest: 19 pruebas HTTP.
+- Statements: 99.47 %.
+- Branches: 99.41 %.
+- Functions: 100 %.
+- Lines: 99.47 %.
+- Los tres comandos de cierre, `npm run test:legacy`, `npm test` y `npm run test:coverage`, terminaron con código de salida 0.
+
+El requisito académico de cobertura global mayor o igual a 80 % quedó ampliamente cumplido. Durante las pruebas unitarias y HTTP no se utilizaron conexiones reales a Supabase, operaciones reales de Storage ni credenciales reales.
+
+### Observaciones técnicas
+- `app.js`, las rutas, los middleware y los servicios alcanzaron 100 % en las cuatro métricas. `supabase.js` conserva ramas de configuración sin cubrir porque probarlas no aporta comportamiento funcional suficiente para justificar pruebas artificiales.
+- `garden.controller.js` conserva las líneas 127–131 sin ejecutar; corresponden a una validación redundante respecto del flujo actual. No se modificó producción para perseguir 100 % global.
+- Jest muestra la advertencia experimental de Node.js asociada a VM Modules, esperada por la ejecución ESM actual y sin impacto en el resultado.
+- Las pruebas legacy se conservaron como regresión independiente y no fueron reemplazadas ni eliminadas.
+
+### Resultado
+Módulo 12 completado: el backend dispone de pruebas unitarias e integración HTTP representativa, dependencias externas aisladas mediante mocks y cobertura global verificable por encima del umbral requerido.
