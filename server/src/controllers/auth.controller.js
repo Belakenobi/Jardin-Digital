@@ -34,7 +34,7 @@ export async function register(
   if (!validation.isValid) {
     return response.status(400).json({
       status: "error",
-      message: "Invalid registration data",
+      message: "Revisa los datos para crear tu cuenta.",
       errors: validation.errors,
     });
   }
@@ -74,7 +74,7 @@ export async function login(
   if (!validation.isValid) {
     return response.status(400).json({
       status: "error",
-      message: "Invalid login data",
+      message: "Revisa tu correo y contraseña.",
       errors: validation.errors,
     });
   }

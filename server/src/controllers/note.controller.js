@@ -27,7 +27,7 @@ export async function getMyNotes(
       return response.status(400).json({
         status: "error",
         message:
-          "Maturity must be seed, budding or tree",
+          "Selecciona una madurez válida: Semilla, Brote o Árbol.",
       });
     }
 
@@ -40,7 +40,7 @@ export async function getMyNotes(
     if (notes === null) {
       return response.status(404).json({
         status: "error",
-        message: "Garden not found",
+        message: "No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.",
       });
     }
 
@@ -65,20 +65,27 @@ export async function createMyNote(
       maturity = "seed",
     } = request.body;
 
+    if (typeof title === "string" && title.trim().length > 200) {
+      return response.status(400).json({
+        status: "error",
+        message: "El título de la nota debe tener como máximo 200 caracteres.",
+      });
+    }
+
     if (
       typeof title !== "string" ||
       title.trim().length === 0
     ) {
       return response.status(400).json({
         status: "error",
-        message: "Note title is required",
+        message: "Escribe el título de la nota; no puede contener solo espacios.",
       });
     }
 
     if (typeof content !== "string") {
       return response.status(400).json({
         status: "error",
-        message: "Note content must be a string",
+        message: "El contenido de la nota debe ser texto.",
       });
     }
 
@@ -86,7 +93,7 @@ export async function createMyNote(
       return response.status(400).json({
         status: "error",
         message:
-          "Maturity must be seed, budding or tree",
+          "Selecciona una madurez válida: Semilla, Brote o Árbol.",
       });
     }
 
@@ -104,7 +111,7 @@ export async function createMyNote(
       return response.status(404).json({
         status: "error",
         message:
-          "Garden not found. Create a garden before creating notes",
+          "Crea tu jardín desde Perfil y jardín antes de agregar notas.",
       });
     }
 
@@ -133,7 +140,7 @@ export async function getMyNoteById(
     if (!note) {
       return response.status(404).json({
         status: "error",
-        message: "Note not found",
+        message: "No se encontró la nota. Actualiza la lista e inténtalo de nuevo.",
       });
     }
 
@@ -155,6 +162,13 @@ export async function updateMyNote(
     const { title, content, maturity } =
       request.body;
 
+    if (typeof title === "string" && title.trim().length > 200) {
+      return response.status(400).json({
+        status: "error",
+        message: "El título de la nota debe tener como máximo 200 caracteres.",
+      });
+    }
+
     if (
       title !== undefined &&
       (
@@ -165,7 +179,7 @@ export async function updateMyNote(
       return response.status(400).json({
         status: "error",
         message:
-          "Note title must be a non-empty string",
+          "Escribe el título de la nota; no puede contener solo espacios.",
       });
     }
 
@@ -176,7 +190,7 @@ export async function updateMyNote(
       return response.status(400).json({
         status: "error",
         message:
-          "Note content must be a string",
+          "El contenido de la nota debe ser texto.",
       });
     }
 
@@ -187,7 +201,7 @@ export async function updateMyNote(
       return response.status(400).json({
         status: "error",
         message:
-          "Maturity must be seed, budding or tree",
+          "Selecciona una madurez válida: Semilla, Brote o Árbol.",
       });
     }
 
@@ -208,7 +222,7 @@ export async function updateMyNote(
     if (!note) {
       return response.status(404).json({
         status: "error",
-        message: "Note not found",
+        message: "No se encontró la nota. Actualiza la lista e inténtalo de nuevo.",
       });
     }
 
@@ -237,7 +251,7 @@ export async function deleteMyNote(
     if (!note) {
       return response.status(404).json({
         status: "error",
-        message: "Note not found",
+        message: "No se encontró la nota. Actualiza la lista e inténtalo de nuevo.",
       });
     }
 

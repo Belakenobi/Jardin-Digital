@@ -15,6 +15,9 @@ function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] =
     useState(false)
 
+  const [currentUser, setCurrentUser] =
+    useState(null)
+
   useEffect(() => {
     async function validateSession() {
       const session = getSession()
@@ -26,8 +29,9 @@ function ProtectedRoute({ children }) {
       }
 
       try {
-        await getCurrentUser()
+        const response = await getCurrentUser()
 
+        setCurrentUser(response.data.user)
         setIsAuthenticated(true)
       } catch {
         setIsAuthenticated(false)
@@ -58,7 +62,9 @@ function ProtectedRoute({ children }) {
     )
   }
 
-  return children
+  return typeof children === 'function'
+    ? children(currentUser)
+    : children
 }
 
 export default ProtectedRoute

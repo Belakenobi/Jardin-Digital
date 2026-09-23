@@ -7,7 +7,7 @@ export function loginUser({ email, password }) {
       email,
       password,
     }),
-  })
+  }, false)
 }
 
 export function registerUser({
@@ -22,7 +22,7 @@ export function registerUser({
       email,
       password,
     }),
-  })
+  }, false)
 }
 
 export function getCurrentUser() {

@@ -512,3 +512,63 @@ Módulos 0–10 implementados dentro de su alcance. El grafo integra notas, rela
 
 ### Siguiente paso
 Módulo 11 — Admin y visitante básico. Registrar además la validación funcional integral del frontend y grafo. Siguen pendientes SMTP propio, pruebas automatizadas y cobertura >=80 %, CI/CD, despliegue, OWASP ZAP, SonarQube, evidencias e informe final.
+
+
+## 23 de septiembre de 2026 — Módulo 11: visitante básico, panel administrativo y validación transversal
+
+### Estado
+Implementado en el código local. Build, lint y suites automatizadas iniciales correctos; validación funcional integral en navegador y contra Supabase pendiente de registrar.
+
+### Objetivo
+Incorporar una experiencia pública de solo lectura para visitantes, un panel básico exclusivo para administradores y mensajes de validación comprensibles en los formularios y respuestas de la API.
+
+### Trabajo realizado
+- Se convirtió `/` en una página de inicio pública. `HomePage` presenta el proyecto y consulta hasta seis jardines públicos, mostrando autoría, descripción, total de notas y conteos de Semillas, Brotes y Árboles.
+- Se agregó la ruta pública `/garden/:gardenId`. `PublicGardenPage` muestra nombre, descripción, autoría, notas con madurez y fechas, y el total de relaciones. No expone controles de edición ni la galería privada.
+- Se crearon `GET /api/public/gardens` y `GET /api/public/gardens/:gardenId` mediante `public.routes.js`, `public.controller.js` y `public.service.js`. Solo consultan jardines con `is_public = true`; un jardín privado, inexistente o que deja de ser público responde `404`.
+- Las lecturas públicas utilizan el cliente publicable de Supabase sin JWT y dependen de las políticas RLS ya definidas. La lista limita el resultado a seis jardines y calcula los conteos de notas mediante consultas `head` con conteo exacto, sin descargar su contenido.
+- Se crearon `GET /api/admin/summary` y `GET /api/admin/users` mediante `admin.routes.js`, `admin.controller.js` y `admin.service.js`. Ambas rutas aplican `authenticate` y `authorizeRoles("admin")`.
+- El resumen administrativo cuenta usuarios, jardines públicos/privados, notas, relaciones e imágenes. El listado muestra nombre, rol y jardín asociado con su visibilidad. El panel es solo de consulta: no cambia roles ni bloquea cuentas.
+- Se agregó `/admin` al frontend. `ProtectedRoute` comparte el usuario validado con `AppLayout`; la navegación muestra el enlace únicamente al rol `admin` y `AdminRoute` redirige a usuarios normales. La API mantiene la autorización definitiva en el backend.
+- Se separaron las operaciones HTTP comunes en `client/src/services/http.js`. Las lecturas públicas no renuevan, eliminan ni redirigen una sesión existente; las solicitudes protegidas conservan la renovación compartida y un único reintento ante `401`.
+- Se agregó `ValidatedForm` y validación reutilizable para campos obligatorios, espacios en blanco, correo, longitudes e imágenes. Los errores se asocian mediante `aria-invalid`, `aria-describedby` y `role="alert"`, y el primer campo inválido recibe el foco.
+- Se aplicaron límites coherentes en cliente y backend: nombre visible 80 caracteres, nombre de jardín 100, descripción del jardín 500, título de nota 200 y descripción de imagen 1000. Las imágenes admiten JPG, PNG o WEBP hasta 5 MiB.
+- Se tradujeron y hicieron más accionables los mensajes de autenticación, permisos, recursos no encontrados, relaciones, galería, errores de Multer y errores conocidos de Supabase/PostgreSQL. Los errores inesperados ya no exponen detalles internos al cliente.
+- Se añadió el script `npm test` con el runner nativo `node:test` en `client/` y `server/`. Las pruebas cubren utilidades de validación, límites de formularios, manejo de errores HTTP, conservación/renovación de sesión y rechazo temprano de datos inválidos en controladores.
+
+Endpoints implementados:
+- `GET /api/public/gardens`
+- `GET /api/public/gardens/:gardenId`
+- `GET /api/admin/summary`
+- `GET /api/admin/users`
+
+### Validaciones realizadas
+- `npm test` en `server/`: correcto; `tests/validation.test.js` terminó sin fallos.
+- `npm test` en `client/`: correcto; `tests/api.test.js` y `tests/validation.test.js` terminaron sin fallos.
+- `npm run lint` en `client/`: correcto, sin errores reportados.
+- `npm run build` en `client/`: correcto, 233 módulos transformados.
+- `git diff --check`: correcto, sin errores de espacios en los cambios locales.
+- Vite mantiene una advertencia por el archivo JavaScript principal de 525,35 kB minificado; no impide la compilación y queda pendiente la división de código.
+
+Estas verificaciones son locales y no equivalen a una prueba funcional completa en navegador, una integración real contra Supabase ni un reporte de cobertura. Tampoco cierran todavía el requisito académico de Jest/Supertest y cobertura >=80 %.
+
+### Decisiones y límites vigentes
+- Mantener la visita pública en modo lectura y excluir del alcance público las imágenes, URLs firmadas y operaciones de edición.
+- Ocultar la existencia de jardines privados con una respuesta `404`, sin diferenciar entre identificador inexistente y recurso no público.
+- Mantener el panel administrativo como vista informativa del MVP. El bloqueo/desactivación de usuarios queda fuera de este cierre.
+- Aplicar la restricción administrativa tanto en la interfaz como en Express; ocultar un enlace no sustituye la autorización del backend.
+- Usar `node:test` para la primera regresión sin agregar dependencias. El Módulo 12 deberá ampliar casos, incorporar las herramientas de testing acordadas y medir la cobertura real.
+- No se modificó la migración. Las vistas pública y administrativa reutilizan las políticas RLS y permisos existentes.
+- Esta actualización documental modifica README, bitácora y contexto maestro. No realiza `git add`, commit ni push.
+
+### Problemas encontrados
+No se encontraron fallos durante build, lint o las suites ejecutadas. La advertencia de tamaño del bundle continúa y todavía falta comprobar manualmente los recorridos con visitante, usuario y administrador contra datos reales.
+
+### Aprendizajes
+La autorización debe comprobarse en el servidor aunque la interfaz oculte las opciones restringidas. Separar solicitudes públicas y protegidas evita que un fallo de una página pública altere una sesión válida. Los mensajes útiles requieren coherencia entre restricciones HTML, validación del cliente, controladores y base de datos.
+
+### Resultado
+Módulos 0–11 implementados dentro de su alcance. Digital Garden ya permite explorar jardines públicos sin cuenta y ofrece al rol administrador una vista general de solo lectura. También dispone de una primera base automatizada para validar formularios, errores HTTP y sesión.
+
+### Siguiente paso
+Módulo 12 — ampliar pruebas automatizadas con Jest/Supertest y medir cobertura >=80 %. También deben registrarse las pruebas funcionales integrales del frontend, grafo, experiencia pública y panel administrativo antes del cierre.

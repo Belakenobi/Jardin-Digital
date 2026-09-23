@@ -26,7 +26,14 @@ export async function updateMyProfile(request, response, next) {
     ) {
       return response.status(400).json({
         status: "error",
-        message: "displayName is required",
+        message: "Escribe tu nombre; no puede contener solo espacios.",
+      });
+    }
+
+    if (displayName.trim().length > 80) {
+      return response.status(400).json({
+        status: "error",
+        message: "El nombre debe tener como máximo 80 caracteres.",
       });
     }
 

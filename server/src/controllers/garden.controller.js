@@ -4,6 +4,17 @@ import {
   updateGarden,
 } from "../services/garden.service.js";
 
+function validateGardenDetails(name, description) {
+  if (typeof name === "string" && name.trim().length > 100) {
+    return "El nombre del jardín debe tener como máximo 100 caracteres.";
+  }
+  if (description !== undefined && description !== null) {
+    if (typeof description !== "string") return "La descripción debe ser texto o estar vacía.";
+    if (description.length > 500) return "La descripción del jardín debe tener como máximo 500 caracteres.";
+  }
+  return null;
+}
+
 export async function getMyGarden(request, response, next) {
   try {
     const garden = await getGarden(
@@ -14,7 +25,7 @@ export async function getMyGarden(request, response, next) {
     if (!garden) {
       return response.status(404).json({
         status: "error",
-        message: "Garden not found",
+        message: "No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.",
       });
     }
 
@@ -35,20 +46,25 @@ export async function createMyGarden(request, response, next) {
       isPublic = false,
     } = request.body;
 
+    const validationError = validateGardenDetails(name, description);
+    if (validationError) {
+      return response.status(400).json({ status: "error", message: validationError });
+    }
+
     if (
       typeof name !== "string" ||
       name.trim().length === 0
     ) {
       return response.status(400).json({
         status: "error",
-        message: "Garden name is required",
+        message: "Escribe el nombre del jardín; no puede contener solo espacios.",
       });
     }
 
     if (typeof isPublic !== "boolean") {
       return response.status(400).json({
         status: "error",
-        message: "isPublic must be a boolean",
+        message: "Selecciona si tu jardín será público o privado.",
       });
     }
 
@@ -60,7 +76,7 @@ export async function createMyGarden(request, response, next) {
     if (existingGarden) {
       return response.status(409).json({
         status: "error",
-        message: "User already has a garden",
+        message: "Ya tienes un jardín. Puedes modificarlo desde Perfil y jardín.",
       });
     }
 
@@ -88,13 +104,18 @@ export async function updateMyGarden(request, response, next) {
   try {
     const { name, description, isPublic } = request.body;
 
+    const validationError = validateGardenDetails(name, description);
+    if (validationError) {
+      return response.status(400).json({ status: "error", message: validationError });
+    }
+
     if (
       name !== undefined &&
       (typeof name !== "string" || name.trim().length === 0)
     ) {
       return response.status(400).json({
         status: "error",
-        message: "Garden name must be a non-empty string",
+        message: "Escribe el nombre del jardín; no puede contener solo espacios.",
       });
     }
 
@@ -105,7 +126,7 @@ export async function updateMyGarden(request, response, next) {
     ) {
       return response.status(400).json({
         status: "error",
-        message: "description must be a string or null",
+        message: "La descripción debe ser texto o estar vacía.",
       });
     }
 
@@ -115,7 +136,7 @@ export async function updateMyGarden(request, response, next) {
     ) {
       return response.status(400).json({
         status: "error",
-        message: "isPublic must be a boolean",
+        message: "Selecciona si tu jardín será público o privado.",
       });
     }
 
@@ -127,7 +148,7 @@ export async function updateMyGarden(request, response, next) {
     if (!existingGarden) {
       return response.status(404).json({
         status: "error",
-        message: "Garden not found",
+        message: "No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.",
       });
     }
 

@@ -6,7 +6,7 @@ import {
 
 import { clearSession } from '../services/session.js'
 
-function AppLayout() {
+function AppLayout({ currentUser }) {
   const navigate = useNavigate()
 
   function handleLogout() {
@@ -81,6 +81,15 @@ function AppLayout() {
               >
                 Perfil y jardín
               </NavLink>
+
+              {currentUser?.role === 'admin' && (
+                <NavLink
+                  to="/admin"
+                  className={getLinkClass}
+                >
+                  Admin
+                </NavLink>
+              )}
             </nav>
 
             <button
@@ -95,7 +104,7 @@ function AppLayout() {
 
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-7xl">
-            <Outlet />
+            <Outlet context={{ currentUser }} />
           </div>
         </main>
       </div>

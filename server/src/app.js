@@ -8,7 +8,8 @@ import gardenRoutes from "./routes/garden.routes.js";
 import noteRoutes from "./routes/note.routes.js";
 import relationRoutes from "./routes/relation.routes.js";
 import galleryRoutes from "./routes/gallery.routes.js";
-
+import publicRoutes from "./routes/public.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 
 const app = express();
@@ -30,7 +31,8 @@ app.use("/api/garden", gardenRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/relations", relationRoutes);
 app.use("/api/gallery", galleryRoutes);
-
+app.use("/api/public", publicRoutes);
+app.use("/api/admin", adminRoutes);
 app.get("/api/health", (_request, response) => {
   return response.status(200).json({
     status: "ok",

@@ -3,8 +3,9 @@ import {
   getSession,
   saveSession,
 } from './session.js'
+import { fetchResponse, readResponse, responseError } from './http.js'
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env?.VITE_API_URL
 
 let refreshPromise = null
 
@@ -20,10 +21,12 @@ async function refreshAccessToken() {
   const session = getSession()
 
   if (!session?.refreshToken) {
-    throw new Error('No refresh token available')
+    const error = new Error('Tu sesión ha expirado. Inicia sesión nuevamente.')
+    error.status = 401
+    throw error
   }
 
-  const response = await fetch(
+  const response = await fetchResponse(
     `${API_URL}/auth/refresh`,
     {
       method: 'POST',
@@ -36,13 +39,10 @@ async function refreshAccessToken() {
     },
   )
 
-  const data = await response.json()
+  const data = await readResponse(response)
 
   if (!response.ok) {
-    throw new Error(
-      data.message ||
-        'Session could not be refreshed',
-    )
+    throw responseError(response, data)
   }
 
   const newSession = data.data?.session
@@ -52,7 +52,7 @@ async function refreshAccessToken() {
     !newSession?.refreshToken
   ) {
     throw new Error(
-      'Invalid refreshed session',
+      'No se pudo renovar tu sesión. Inténtalo de nuevo.',
     )
   }
 
@@ -93,7 +93,7 @@ async function sendRequest(
       `Bearer ${accessToken}`
   }
 
-  return fetch(
+  return fetchResponse(
     `${API_URL}${endpoint}`,
     {
       ...options,
@@ -115,24 +115,19 @@ export async function apiRequest(
     session?.accessToken,
   )
 
-  let data = await response.json()
+  let data = await readResponse(response)
 
   if (
     response.status === 401 &&
     allowRefresh
   ) {
+    let newSession
     try {
-      const newSession =
-        await getRefreshedSession()
-
-      response = await sendRequest(
-        endpoint,
-        options,
-        newSession.accessToken,
-      )
-
-      data = await response.json()
-    } catch {
+      newSession = await getRefreshedSession()
+    } catch (refreshError) {
+      if (refreshError.status !== 400 && refreshError.status !== 401) {
+        throw refreshError
+      }
       redirectToLogin()
 
       const error = new Error(
@@ -143,21 +138,17 @@ export async function apiRequest(
 
       throw error
     }
+
+    response = await sendRequest(endpoint, options, newSession.accessToken)
+    data = await readResponse(response)
   }
 
-  if (response.status === 401) {
+  if (response.status === 401 && allowRefresh) {
     redirectToLogin()
   }
 
   if (!response.ok) {
-    const error = new Error(
-      data.message || 'Something went wrong',
-    )
-
-    error.status = response.status
-    error.data = data
-
-    throw error
+    throw responseError(response, data)
   }
 
   return data

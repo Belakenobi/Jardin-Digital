@@ -1,3 +1,4 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
   useState,
@@ -229,7 +230,7 @@ function ProfilePage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
           {error}
         </p>
       )}
@@ -244,7 +245,7 @@ function ProfilePage() {
             Rol: {profile.role}
           </p>
 
-          <form
+          <ValidatedForm
             onSubmit={
               handleProfileSubmit
             }
@@ -254,11 +255,12 @@ function ProfilePage() {
               htmlFor="displayName"
               className="mb-2 block text-sm text-stone-300"
             >
-              Nombre visible
+              Nombre visible (máximo 80 caracteres)
             </label>
 
             <input
               id="displayName"
+              maxLength={80}
               type="text"
               value={displayName}
               onChange={(event) =>
@@ -281,7 +283,7 @@ function ProfilePage() {
                 ? 'Guardando...'
                 : 'Guardar perfil'}
             </button>
-          </form>
+          </ValidatedForm>
 
           {profileMessage && (
             <p className="mt-4 text-sm text-lime-400">
@@ -306,7 +308,7 @@ function ProfilePage() {
           </p>
         )}
 
-        <form
+        <ValidatedForm
           onSubmit={
             handleGardenSubmit
           }
@@ -317,11 +319,12 @@ function ProfilePage() {
               htmlFor="gardenName"
               className="mb-2 block text-sm text-stone-300"
             >
-              Nombre del jardín
+              Nombre del jardín (máximo 100 caracteres)
             </label>
 
             <input
               id="gardenName"
+              maxLength={100}
               type="text"
               value={gardenName}
               onChange={(event) =>
@@ -339,11 +342,12 @@ function ProfilePage() {
               htmlFor="gardenDescription"
               className="mb-2 block text-sm text-stone-300"
             >
-              Descripción
+              Descripción (máximo 500 caracteres)
             </label>
 
             <textarea
               id="gardenDescription"
+              maxLength={500}
               value={
                 gardenDescription
               }
@@ -386,7 +390,7 @@ function ProfilePage() {
                 ? 'Guardar jardín'
                 : 'Crear jardín'}
           </button>
-        </form>
+        </ValidatedForm>
 
         {gardenMessage && (
           <p className="mt-4 text-sm text-lime-400">

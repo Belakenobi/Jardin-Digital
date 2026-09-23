@@ -37,7 +37,7 @@ const validateNoteBelongsToGarden = async (
 
   if (!data) {
     const validationError = new Error(
-      "Note not found in your garden"
+      "La nota seleccionada no está en tu jardín. Selecciona otra nota."
     );
 
     validationError.statusCode = 400;
@@ -59,7 +59,7 @@ export const createGalleryImageService = async ({
   );
 
   if (!gardenId) {
-    const error = new Error("Garden not found");
+    const error = new Error("No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.");
     error.statusCode = 404;
     throw error;
   }
@@ -130,7 +130,7 @@ export const getGalleryImagesService = async ({
   );
 
   if (!gardenId) {
-    const error = new Error("Garden not found");
+    const error = new Error("No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.");
     error.statusCode = 404;
     throw error;
   }
@@ -190,7 +190,7 @@ export const updateGalleryImageService = async ({
   );
 
   if (!gardenId) {
-    const error = new Error("Garden not found");
+    const error = new Error("No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.");
     error.statusCode = 404;
     throw error;
   }
@@ -214,7 +214,7 @@ export const updateGalleryImageService = async ({
   }
 
   if (!existingImage) {
-    const error = new Error("Gallery image not found");
+    const error = new Error("No se encontró la imagen. Actualiza la galería e inténtalo de nuevo.");
     error.statusCode = 404;
     throw error;
   }
@@ -232,7 +232,7 @@ export const updateGalleryImageService = async ({
 
   if (Object.keys(updateData).length === 0) {
     const error = new Error(
-      "No valid fields provided for update"
+      "Modifica la descripción o la nota asociada antes de guardar."
     );
     error.statusCode = 400;
     throw error;
@@ -274,7 +274,7 @@ export const deleteGalleryImageService = async ({
   );
 
   if (!gardenId) {
-    const error = new Error("Garden not found");
+    const error = new Error("No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.");
     error.statusCode = 404;
     throw error;
   }
@@ -292,7 +292,7 @@ export const deleteGalleryImageService = async ({
   }
 
   if (!image) {
-    const error = new Error("Gallery image not found");
+    const error = new Error("No se encontró la imagen. Actualiza la galería e inténtalo de nuevo.");
     error.statusCode = 404;
     throw error;
   }

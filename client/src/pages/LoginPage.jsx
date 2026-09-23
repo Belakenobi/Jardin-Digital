@@ -1,3 +1,4 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import { useState } from 'react'
 import { loginUser } from '../services/auth.js'
 import { saveSession } from '../services/session.js'
@@ -26,7 +27,6 @@ function LoginPage() {
       saveSession(response.data.session)
       navigate('/dashboard')
 
-      setMessage('Inicio de sesión correcto.')
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -45,7 +45,7 @@ function LoginPage() {
           Iniciar sesión
         </h1>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <ValidatedForm onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -89,10 +89,10 @@ function LoginPage() {
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
-        </form>
+        </ValidatedForm>
 
         {message && (
-          <p className="mt-4 text-sm text-stone-300">
+          <p role="alert" className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-4 text-sm text-red-300">
             {message}
           </p>
         )}

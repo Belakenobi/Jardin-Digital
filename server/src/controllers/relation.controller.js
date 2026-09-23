@@ -21,7 +21,7 @@ export async function createMyRelation(
     ) {
       return response.status(400).json({
         status: "error",
-        message: "Source note id is required",
+        message: "Selecciona una nota de origen.",
       });
     }
 
@@ -31,7 +31,7 @@ export async function createMyRelation(
     ) {
       return response.status(400).json({
         status: "error",
-        message: "Target note id is required",
+        message: "Selecciona una nota de destino.",
       });
     }
 
@@ -45,7 +45,7 @@ export async function createMyRelation(
     if (result.status === "garden_not_found") {
       return response.status(404).json({
         status: "error",
-        message: "Garden not found",
+        message: "No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.",
       });
     }
 
@@ -53,28 +53,28 @@ export async function createMyRelation(
       return response.status(400).json({
         status: "error",
         message:
-          "A note cannot be related to itself",
+          "Una nota no puede relacionarse consigo misma. Selecciona otra nota.",
       });
     }
 
     if (result.status === "source_not_found") {
       return response.status(404).json({
         status: "error",
-        message: "Source note not found",
+        message: "La nota de origen ya no está disponible. Selecciona otra nota.",
       });
     }
 
     if (result.status === "target_not_found") {
       return response.status(404).json({
         status: "error",
-        message: "Target note not found",
+        message: "La nota de destino ya no está disponible. Selecciona otra nota.",
       });
     }
 
     if (result.status === "already_exists") {
       return response.status(409).json({
         status: "error",
-        message: "Relation already exists",
+        message: "Estas notas ya tienen esa relación. Selecciona otra nota.",
       });
     }
 
@@ -103,7 +103,7 @@ export async function getMyNoteRelations(
     if (!relations) {
       return response.status(404).json({
         status: "error",
-        message: "Note not found",
+        message: "No se encontró la nota. Actualiza la lista e inténtalo de nuevo.",
       });
     }
 
@@ -131,7 +131,7 @@ export async function deleteMyRelation(
     if (!relation) {
       return response.status(404).json({
         status: "error",
-        message: "Relation not found",
+        message: "No se encontró la relación. Actualiza la lista e inténtalo de nuevo.",
       });
     }
 

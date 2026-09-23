@@ -5,17 +5,32 @@ import {
   deleteGalleryImageService,
 } from "../services/gallery.service.js";
 
+function validateImageDetails(description, noteId) {
+  if (description !== undefined && description !== null) {
+    if (typeof description !== "string") return "La descripción debe ser texto o estar vacía.";
+    if (description.trim().length > 1000) return "La descripción de la imagen debe tener como máximo 1000 caracteres.";
+  }
+  if (noteId !== undefined && noteId !== null && typeof noteId !== "string") {
+    return "Selecciona una nota válida o deja la imagen sin nota asociada.";
+  }
+  return null;
+}
+
 export const createGalleryImage = async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         status: "error",
-        message: "Image file is required",
+        message: "Selecciona una imagen JPG, PNG o WEBP de hasta 5 MB.",
       });
     }
 
     const { description, noteId } = req.body;
 
+    const validationError = validateImageDetails(description, noteId);
+    if (validationError) {
+      return res.status(400).json({ status: "error", message: validationError });
+    }
 
     const image = await createGalleryImageService({
       supabase: req.supabase,
@@ -61,6 +76,11 @@ export const updateGalleryImage = async (
 ) => {
   try {
     const { description, noteId } = req.body;
+
+    const validationError = validateImageDetails(description, noteId);
+    if (validationError) {
+      return res.status(400).json({ status: "error", message: validationError });
+    }
 
     const image = await updateGalleryImageService({
       supabase: req.supabase,

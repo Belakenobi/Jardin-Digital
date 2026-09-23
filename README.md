@@ -4,7 +4,7 @@ Aplicación web para cultivar conocimiento personal mediante notas, relaciones e
 
 ## Estado actual
 
-Actualizado al **22 de septiembre de 2026**. Módulos **0–10 implementados**, incluidos el frontend y el grafo interactivo. El backend cuenta con pruebas manuales registradas; el frontend compila y pasa ESLint. Las pruebas automatizadas y la cobertura >=80 % siguen pendientes.
+Actualizado al **23 de septiembre de 2026**. Módulos **0–11 implementados**, incluidos el frontend, el grafo interactivo, la experiencia pública y el panel administrativo básico. El frontend compila y pasa ESLint; además existe una primera suite automatizada de validación y manejo HTTP. La cobertura >=80 % y la suite integral con Jest/Supertest siguen pendientes.
 
 - Registro, login, rutas protegidas y sesión persistida en el navegador, con renovación de tokens ante respuestas `401` y cierre local de sesión.
 - Dashboard con resumen del jardín, conteos por madurez y notas recientes.
@@ -13,11 +13,14 @@ Actualizado al **22 de septiembre de 2026**. Módulos **0–10 implementados**, 
 - Galería privada: carga de JPG, PNG y WEBP (hasta 5 MiB), edición de descripción/asociación con notas y eliminación.
 - Grafo protegido con React Flow y distribución mediante d3-force: notas por madurez, relaciones dirigidas, zoom, arrastre y resaltado de conexiones/backlinks.
 - Imágenes asociadas como nodos del grafo, con miniaturas y panel de detalle; navegación desde la vista previa a la nota completa resaltada.
-- Interfaz adaptable con estados de carga, mensajes y confirmación de eliminaciones.
+- Inicio público con listado de hasta seis jardines públicos, conteos por madurez y lectura de notas/relaciones sin iniciar sesión. Los jardines privados responden como no disponibles.
+- Panel administrativo protegido por JWT y rol `admin`, con estadísticas generales y listado de usuarios, roles, jardines y visibilidad.
+- Interfaz adaptable con estados de carga, mensajes en español, validación accesible de formularios y confirmación de eliminaciones.
+- Pruebas iniciales con `node:test` para validaciones del cliente/backend, manejo de errores y renovación de sesión.
 
-**Siguiente:** Módulo 11 — panel administrativo y visitante básico. También quedan pendientes registrar la validación funcional integral del frontend/grafo, pruebas automatizadas, CI/CD, despliegue y evaluaciones de seguridad/calidad.
+**Siguiente:** Módulo 12 — ampliar las pruebas automatizadas y medir cobertura >=80 %. También quedan pendientes registrar la validación funcional integral en navegador del frontend, grafo, vistas públicas y panel administrativo; CI/CD, despliegue y evaluaciones de seguridad/calidad.
 
-El grafo reutiliza la API existente y muestra solo imágenes vinculadas a notas. Las posiciones se conservan en memoria; las relaciones se administran desde su módulo. Build y lint comprobados el 22 de septiembre; Vite advierte de un archivo JavaScript principal mayor de 500 kB, pendiente de optimización.
+El grafo reutiliza la API existente y muestra solo imágenes vinculadas a notas. Las posiciones se conservan en memoria; las relaciones se administran desde su módulo. Build, lint y suites iniciales comprobados el 23 de septiembre; Vite advierte de un archivo JavaScript principal de 525,35 kB minificado, pendiente de optimización.
 
 ## Stack y estructura
 
@@ -54,6 +57,17 @@ npm run dev
 ```
 
 Configurar `VITE_API_URL=http://localhost:4000/api`. Las variables `VITE_SUPABASE_*` de la plantilla no se usan en el cliente actual. Para verificarlo, ejecutar `npm run build` y `npm run lint` desde `client/`.
+
+Las pruebas iniciales se ejecutan con `npm test` tanto en `client/` como en `server/`. Estas pruebas todavía no generan cobertura ni sustituyen la suite Jest/Supertest requerida para el cierre.
+
+## Acceso público y administración
+
+- `GET /api/public/gardens`: lista hasta seis jardines públicos con autoría y conteos por madurez.
+- `GET /api/public/gardens/:gardenId`: devuelve jardín, autoría, notas y relaciones únicamente si el jardín continúa público.
+- `GET /api/admin/summary`: estadísticas globales del sistema.
+- `GET /api/admin/users`: usuarios con rol y jardín asociado.
+
+Las rutas públicas no necesitan sesión. Las administrativas requieren un JWT válido y rol `admin`; el enlace del panel solo aparece para ese rol, pero la autorización real también se aplica en Express. El panel es de consulta: no bloquea usuarios ni modifica roles.
 
 ## Galería y sesión
 

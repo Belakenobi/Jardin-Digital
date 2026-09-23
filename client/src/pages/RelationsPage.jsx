@@ -1,3 +1,4 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
   useState,
@@ -168,6 +169,7 @@ function RelationsPage() {
       !selectedRelationNoteId ||
       !targetRelationNoteId
     ) {
+      setError('Selecciona una nota de origen y una nota de destino.')
       return
     }
 
@@ -315,7 +317,7 @@ function RelationsPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
           {error}
         </p>
       )}
@@ -380,7 +382,7 @@ function RelationsPage() {
             </span>
           </p>
 
-          <form
+          <ValidatedForm
             onSubmit={
               handleCreateRelation
             }
@@ -395,6 +397,7 @@ function RelationsPage() {
 
             <select
               id="targetRelation"
+              required
               value={
                 targetRelationNoteId
               }
@@ -428,8 +431,7 @@ function RelationsPage() {
             <button
               type="submit"
               disabled={
-                isCreatingRelation ||
-                !targetRelationNoteId
+                isCreatingRelation
               }
               className="mt-4 rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950 disabled:opacity-50"
             >
@@ -437,7 +439,7 @@ function RelationsPage() {
                 ? 'Creando...'
                 : 'Crear relación'}
             </button>
-          </form>
+          </ValidatedForm>
 
           {relationMessage && (
             <p className="mt-4 text-lime-400">

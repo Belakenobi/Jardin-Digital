@@ -24,7 +24,7 @@ export async function authenticate(request, response, next) {
   if (!accessToken) {
     return response.status(401).json({
       status: "error",
-      message: "Authentication token is required",
+      message: "Inicia sesión para continuar.",
     });
   }
 
@@ -39,7 +39,7 @@ export async function authenticate(request, response, next) {
     if (authError || !user) {
       return response.status(401).json({
         status: "error",
-        message: "Invalid or expired authentication token",
+        message: "Tu sesión ha expirado. Inicia sesión nuevamente.",
       });
     }
 
@@ -60,7 +60,7 @@ export async function authenticate(request, response, next) {
 
       return response.status(403).json({
         status: "error",
-        message: "User profile is not available",
+        message: "No se pudo acceder a tu perfil. Intenta iniciar sesión nuevamente.",
       });
     }
 
@@ -85,14 +85,14 @@ export function authorizeRoles(...allowedRoles) {
     if (!request.user) {
       return response.status(401).json({
         status: "error",
-        message: "Authentication is required",
+        message: "Inicia sesión para continuar.",
       });
     }
 
     if (!allowedRoles.includes(request.user.role)) {
       return response.status(403).json({
         status: "error",
-        message: "You do not have permission to access this resource",
+        message: "No tienes permiso para realizar esta acción.",
       });
     }
 

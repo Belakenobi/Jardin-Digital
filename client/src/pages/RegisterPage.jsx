@@ -1,3 +1,4 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerUser } from '../services/auth.js'
@@ -8,6 +9,7 @@ function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [hasError, setHasError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
@@ -16,6 +18,7 @@ function RegisterPage() {
     event.preventDefault()
 
     setMessage('')
+    setHasError(false)
     setIsLoading(true)
 
     try {
@@ -37,6 +40,7 @@ function RegisterPage() {
         )
       }
     } catch (error) {
+      setHasError(true)
       setMessage(error.message)
     } finally {
       setIsLoading(false)
@@ -54,17 +58,18 @@ function RegisterPage() {
           Crear cuenta
         </h1>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <ValidatedForm onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
             <label
               htmlFor="displayName"
               className="block mb-2 text-sm text-stone-300"
             >
-              Nombre
+              Nombre (máximo 80 caracteres)
             </label>
 
             <input
               id="displayName"
+              maxLength={80}
               type="text"
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
@@ -96,11 +101,12 @@ function RegisterPage() {
               htmlFor="password"
               className="block mb-2 text-sm text-stone-300"
             >
-              Contraseña
+              Contraseña (mínimo 8 caracteres)
             </label>
 
             <input
               id="password"
+              minLength={8}
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -116,10 +122,13 @@ function RegisterPage() {
           >
             {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
-        </form>
+        </ValidatedForm>
 
         {message && (
-          <p className="mt-4 text-sm text-stone-300">
+          <p
+            role={hasError ? 'alert' : 'status'}
+            className={`mt-4 rounded-xl border p-4 text-sm ${hasError ? 'border-red-900 bg-red-950/40 text-red-300' : 'border-lime-900 bg-lime-950/40 text-lime-300'}`}
+          >
             {message}
           </p>
         )}

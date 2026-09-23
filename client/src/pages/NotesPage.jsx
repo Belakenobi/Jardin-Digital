@@ -1,3 +1,4 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
   useState,
@@ -414,7 +415,7 @@ function NotesPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
           {error}
         </p>
       )}
@@ -424,7 +425,7 @@ function NotesPage() {
           Plantar una nueva idea
         </h2>
 
-        <form
+        <ValidatedForm
           onSubmit={
             handleCreateNote
           }
@@ -435,11 +436,12 @@ function NotesPage() {
               htmlFor="newNoteTitle"
               className="mb-2 block text-sm text-stone-300"
             >
-              Título
+              Título (máximo 200 caracteres)
             </label>
 
             <input
               id="newNoteTitle"
+              maxLength={200}
               type="text"
               value={newNoteTitle}
               onChange={(event) =>
@@ -517,7 +519,7 @@ function NotesPage() {
               ? 'Creando...'
               : 'Crear nota'}
           </button>
-        </form>
+        </ValidatedForm>
       </section>
 
       <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
@@ -610,7 +612,7 @@ function NotesPage() {
               >
                 {editingNoteId ===
                 note.id ? (
-                  <form
+                  <ValidatedForm
                     onSubmit={(event) =>
                       handleUpdateNote(
                         event,
@@ -620,6 +622,8 @@ function NotesPage() {
                     className="space-y-4"
                   >
                     <input
+                      aria-label="Título de la nota"
+                      maxLength={200}
                       value={
                         editNoteTitle
                       }
@@ -633,6 +637,7 @@ function NotesPage() {
                     />
 
                     <textarea
+                      aria-label="Contenido de la nota"
                       value={
                         editNoteContent
                       }
@@ -645,6 +650,7 @@ function NotesPage() {
                     />
 
                     <select
+                      aria-label="Madurez de la nota"
                       value={
                         editNoteMaturity
                       }
@@ -691,7 +697,7 @@ function NotesPage() {
                         Cancelar
                       </button>
                     </div>
-                  </form>
+                  </ValidatedForm>
                 ) : (
                   <>
                     <div className="flex flex-wrap justify-between gap-4">

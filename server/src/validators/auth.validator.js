@@ -2,23 +2,23 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateEmail(email) {
   if (typeof email !== "string" || email.trim() === "") {
-    return "Email is required";
+    return "Escribe tu correo electrónico.";
   }
 
   if (!EMAIL_PATTERN.test(email.trim())) {
-    return "Email format is invalid";
+    return "Escribe un correo electrónico válido, por ejemplo nombre@dominio.com.";
   }
 
   return null;
 }
 
 function validatePassword(password) {
-  if (typeof password !== "string" || password === "") {
-    return "Password is required";
+  if (typeof password !== "string" || password.trim() === "") {
+    return "Escribe tu contraseña.";
   }
 
   if (password.length < 8) {
-    return "Password must contain at least 8 characters";
+    return "La contraseña debe tener al menos 8 caracteres.";
   }
 
   return null;
@@ -26,11 +26,11 @@ function validatePassword(password) {
 
 function validateDisplayName(displayName) {
   if (typeof displayName !== "string" || displayName.trim() === "") {
-    return "Display name is required";
+    return "Escribe tu nombre; no puede contener solo espacios.";
   }
 
   if (displayName.trim().length > 80) {
-    return "Display name must contain 80 characters or fewer";
+    return "El nombre debe tener como máximo 80 caracteres.";
   }
 
   return null;
@@ -83,9 +83,9 @@ export function validateLogin(body = {}) {
 
   if (
     typeof body.password !== "string" ||
-    body.password === ""
+    body.password.trim() === ""
   ) {
-    errors.password = "Password is required";
+    errors.password = "Escribe tu contraseña.";
   }
 
   return {

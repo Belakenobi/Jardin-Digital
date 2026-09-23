@@ -1,5 +1,7 @@
+import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
+  useRef,
   useState,
 } from 'react'
 
@@ -23,6 +25,8 @@ import {
 } from '../services/gallery.js'
 
 function GalleryPage() {
+  const galleryFileInput = useRef(null)
+
   const [hasGarden, setHasGarden] =
     useState(true)
 
@@ -385,7 +389,7 @@ function GalleryPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
           {error}
         </p>
       )}
@@ -395,7 +399,7 @@ function GalleryPage() {
           Subir imagen
         </h2>
 
-        <form
+        <ValidatedForm
           onSubmit={
             handleUploadGalleryImage
           }
@@ -406,22 +410,43 @@ function GalleryPage() {
               htmlFor="galleryFile"
               className="mb-2 block text-sm text-stone-300"
             >
-              Imagen
+              Imagen (JPG, PNG o WEBP; máximo 5 MB)
             </label>
 
-            <input
-              id="galleryFile"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(event) =>
-                setGalleryFile(
-                  event.target.files?.[0] ??
-                    null,
-                )
-              }
-              className="block w-full text-sm text-stone-300"
-              required
-            />
+            <div className="group">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => galleryFileInput.current?.click()}
+                  disabled={isUploadingGallery}
+                  aria-controls="galleryFile"
+                  className="shrink-0 cursor-pointer rounded-xl border border-lime-400 bg-stone-950 px-5 py-3 font-medium text-lime-300 hover:bg-stone-800 group-focus-within:ring-2 group-focus-within:ring-lime-400 group-focus-within:ring-offset-2 group-focus-within:ring-offset-stone-900 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {galleryFile ? 'Cambiar imagen' : 'Seleccionar imagen'}
+                </button>
+
+                <p id="galleryFileName" role="status" className="min-w-0 break-all text-sm text-stone-300">
+                  {galleryFile?.name || 'Ninguna imagen seleccionada'}
+                </p>
+              </div>
+
+              <input
+                ref={galleryFileInput}
+                id="galleryFile"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                aria-describedby="galleryFileName"
+                tabIndex={-1}
+                disabled={isUploadingGallery}
+                onChange={(event) =>
+                  setGalleryFile(
+                    event.target.files?.[0] ?? null,
+                  )
+                }
+                className="sr-only"
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -429,11 +454,12 @@ function GalleryPage() {
               htmlFor="galleryDescription"
               className="mb-2 block text-sm text-stone-300"
             >
-              Descripción
+              Descripción (máximo 1000 caracteres)
             </label>
 
             <textarea
               id="galleryDescription"
+              maxLength={1000}
               value={
                 galleryDescription
               }
@@ -492,7 +518,7 @@ function GalleryPage() {
               ? 'Subiendo...'
               : 'Subir imagen'}
           </button>
-        </form>
+        </ValidatedForm>
       </section>
 
       <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
@@ -550,7 +576,7 @@ function GalleryPage() {
                 <div className="p-5">
                   {editingGalleryImageId ===
                   image.id ? (
-                    <form
+                    <ValidatedForm
                       onSubmit={(event) =>
                         handleUpdateGalleryImage(
                           event,
@@ -560,6 +586,8 @@ function GalleryPage() {
                       className="space-y-4"
                     >
                       <textarea
+                        aria-label="Descripción de la imagen"
+                        maxLength={1000}
                         value={
                           editGalleryDescription
                         }
@@ -573,6 +601,7 @@ function GalleryPage() {
                       />
 
                       <select
+                        aria-label="Nota asociada"
                         value={
                           editGalleryNoteId
                         }
@@ -628,7 +657,7 @@ function GalleryPage() {
                           Cancelar
                         </button>
                       </div>
-                    </form>
+                    </ValidatedForm>
                   ) : (
                     <>
                       <p className="text-stone-300">
@@ -720,4 +749,3 @@ function GalleryPage() {
 }
 
 export default GalleryPage
-
