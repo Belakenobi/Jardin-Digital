@@ -1,4 +1,4 @@
-name: Digital Garden CI
+name: Digital Garden CI/CD
 
 on:
   push:
@@ -64,3 +64,26 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+  deploy:
+    name: Deploy to Render
+    needs:
+      - backend
+      - frontend
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy backend to Render
+        run: |
+          curl --fail --show-error --silent \
+            --request POST \
+            "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
+
+      - name: Deploy frontend to Render
+        run: |
+          curl --fail --show-error --silent \
+            --request POST \
+            "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
