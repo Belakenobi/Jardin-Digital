@@ -117,7 +117,7 @@ function HomePage() {
                 {gardens.slice(0, 6).map((garden) => (
                   <article
                     key={garden.id}
-                    className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-800 bg-gradient-to-b from-stone-900 to-stone-900/80 p-6 shadow-md transition duration-300 ease-out hover:-translate-y-1.5 hover:border-lime-600 hover:shadow-2xl hover:shadow-black/30"
+                    className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-800 bg-white/85 p-6 shadow-md transition duration-300 ease-out hover:-translate-y-1.5 hover:border-lime-600 hover:shadow-2xl hover:shadow-black/30"
                   >
                     <div className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-lime-400 transition-transform duration-300 group-hover:scale-x-100" />
 
