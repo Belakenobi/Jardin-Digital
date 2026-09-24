@@ -113,13 +113,15 @@ function HomePage() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {gardens.slice(0, 6).map((garden) => (
                   <article
                     key={garden.id}
-                    className="flex min-w-0 flex-col rounded-2xl border border-stone-800 bg-stone-900 p-6 shadow-sm transition duration-300 ease-out hover:-translate-y-1 hover:border-lime-700 hover:shadow-xl hover:shadow-black/20"
+                    className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-800 bg-gradient-to-b from-stone-900 to-stone-900/80 p-6 shadow-md transition duration-300 ease-out hover:-translate-y-1.5 hover:border-lime-600 hover:shadow-2xl hover:shadow-black/30"
                   >
-                    <h3 className="wrap-anywhere text-xl font-semibold">
+                    <div className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-lime-400 transition-transform duration-300 group-hover:scale-x-100" />
+
+                    <h3 className="wrap-anywhere text-xl font-semibold transition-colors duration-300 group-hover:text-lime-300">
                       {garden.name}
                     </h3>
 
@@ -138,13 +140,13 @@ function HomePage() {
 
                       {garden.maturityCounts && (
                         <div className="mt-3 flex flex-wrap gap-2 text-xs text-lime-300">
-                          <span className="rounded-full bg-stone-800 px-3 py-1">
+                          <span className="rounded-full border border-stone-700 bg-stone-800 px-3 py-1">
                             🌱 Semillas: {garden.maturityCounts.seed}
                           </span>
-                          <span className="rounded-full bg-stone-800 px-3 py-1">
+                          <span className="rounded-full border border-stone-700 bg-stone-800 px-3 py-1">
                             🌿 Brotes: {garden.maturityCounts.budding}
                           </span>
-                          <span className="rounded-full bg-stone-800 px-3 py-1">
+                          <span className="rounded-full border border-stone-700 bg-stone-800 px-3 py-1">
                             🌳 Árboles: {garden.maturityCounts.tree}
                           </span>
                         </div>
@@ -153,9 +155,10 @@ function HomePage() {
                       <Link
                         to={`/garden/${garden.id}`}
                         aria-label={`Ver jardín: ${garden.name}`}
-                        className="mt-6 inline-block rounded-xl border border-lime-800 px-4 py-2 text-sm text-lime-400 hover:border-lime-400 hover:text-lime-300"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lime-400 px-4 py-2.5 text-sm font-semibold text-stone-950 transition duration-200 hover:bg-lime-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-400"
                       >
                         Ver jardín
+                        <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
                       </Link>
                     </div>
                   </article>

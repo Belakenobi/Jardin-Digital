@@ -103,8 +103,9 @@ function PublicGardenPage() {
       <main className="mx-auto max-w-5xl px-6 py-10">
         <Link
           to="/"
-          className="mb-6 inline-block text-sm text-lime-400 hover:underline"
+          className="mb-6 inline-flex items-center gap-2 rounded-xl border border-stone-700 bg-stone-900 px-4 py-2.5 text-sm font-medium text-stone-100 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-lime-500 hover:bg-stone-800 hover:text-lime-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-400"
         >
+          <span aria-hidden="true">←</span>
           Volver a explorar jardines
         </Link>
 
@@ -166,9 +167,10 @@ function PublicGardenPage() {
         <div className="mt-12 border-t border-stone-800 pt-6">
           <Link
             to="/login"
-            className="text-sm text-lime-400 hover:underline"
+            className="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 text-sm font-semibold text-stone-950 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-lime-300 hover:shadow-lg hover:shadow-lime-950/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-400"
           >
             Crear o administrar mi jardín
+            <span aria-hidden="true">→</span>
           </Link>
         </div>
       </main>
