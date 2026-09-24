@@ -117,7 +117,7 @@ function HomePage() {
                 {gardens.slice(0, 6).map((garden) => (
                   <article
                     key={garden.id}
-                    className="flex min-w-0 flex-col border-t border-stone-700 py-6"
+                    className="flex min-w-0 flex-col rounded-2xl border border-stone-800 bg-stone-900 p-6 shadow-sm transition duration-300 ease-out hover:-translate-y-1 hover:border-lime-700 hover:shadow-xl hover:shadow-black/20"
                   >
                     <h3 className="wrap-anywhere text-xl font-semibold">
                       {garden.name}
