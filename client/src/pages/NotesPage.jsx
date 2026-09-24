@@ -1,366 +1,178 @@
-import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 
 import {
   Link,
+  useNavigate,
   useSearchParams,
 } from 'react-router-dom'
 
 import ConfirmDialog from '../components/ConfirmDialog.jsx'
-
+import MaturityBadge from '../components/MaturityBadge.jsx'
+import { getGarden } from '../services/garden.js'
 import {
-  getNotes,
-  createNote,
-  updateNote,
   deleteNote,
+  getNotes,
 } from '../services/notes.js'
 
-import { getGarden } from '../services/garden.js'
+function createExcerpt(content) {
+  const text = content?.trim() ?? ''
+
+  if (!text) {
+    return 'Esta idea todavía espera sus primeras palabras.'
+  }
+
+  return text.length > 260
+    ? `${text.slice(0, 260).trimEnd()}…`
+    : text
+}
 
 function NotesPage() {
+  const navigate = useNavigate()
   const [searchParams] =
     useSearchParams()
-
-  const selectedNoteId =
-    searchParams.get('selected')
-
-  const [hasGarden, setHasGarden] =
-    useState(true)
 
   const [notes, setNotes] =
     useState([])
 
-  const [
-    maturityFilter,
-    setMaturityFilter,
-  ] = useState('')
+  const [maturityFilter, setMaturityFilter] =
+    useState('')
 
-  const [
-    newNoteTitle,
-    setNewNoteTitle,
-  ] = useState('')
+  const [isLoading, setIsLoading] =
+    useState(true)
 
-  const [
-    newNoteContent,
-    setNewNoteContent,
-  ] = useState('')
+  const [isFiltering, setIsFiltering] =
+    useState(false)
 
-  const [
-    newNoteMaturity,
-    setNewNoteMaturity,
-  ] = useState('seed')
+  const [hasGarden, setHasGarden] =
+    useState(true)
 
-  const [
-    editingNoteId,
-    setEditingNoteId,
-  ] = useState(null)
+  const [noteToDelete, setNoteToDelete] =
+    useState(null)
 
-  const [
-    editNoteTitle,
-    setEditNoteTitle,
-  ] = useState('')
-
-  const [
-    editNoteContent,
-    setEditNoteContent,
-  ] = useState('')
-
-  const [
-    editNoteMaturity,
-    setEditNoteMaturity,
-  ] = useState('seed')
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
-
-  const [
-    isLoadingNotes,
-    setIsLoadingNotes,
-  ] = useState(false)
-
-  const [
-    isCreatingNote,
-    setIsCreatingNote,
-  ] = useState(false)
-
-  const [
-    isUpdatingNote,
-    setIsUpdatingNote,
-  ] = useState(false)
-
-  const [
-    deletingNoteId,
-    setDeletingNoteId,
-  ] = useState(null)
-
-  const [
-    noteToDelete,
-    setNoteToDelete,
-  ] = useState(null)
+  const [deletingNoteId, setDeletingNoteId] =
+    useState(null)
 
   const [error, setError] =
     useState('')
 
-  const [
-    noteMessage,
-    setNoteMessage,
-  ] = useState('')
+  const editorialNumbers = useMemo(
+    () =>
+      new Map(
+        [...notes]
+          .sort((first, second) => {
+            const dateDifference =
+              new Date(first.createdAt).getTime() -
+              new Date(second.createdAt).getTime()
+
+            return dateDifference ||
+              first.id.localeCompare(second.id)
+          })
+          .map((note, index) => [
+            note.id,
+            index + 1,
+          ]),
+      ),
+    [notes],
+  )
 
   useEffect(() => {
+    const legacySelection =
+      searchParams.get('selected')
+
+    if (legacySelection) {
+      navigate(
+        `/notes/${legacySelection}`,
+        { replace: true },
+      )
+    }
+  }, [navigate, searchParams])
+
+  useEffect(() => {
+    let active = true
+
     async function loadPage() {
-      setError('')
-
       try {
-        try {
-          await getGarden()
-          setHasGarden(true)
-        } catch (gardenError) {
-          if (
-            gardenError.status === 404
-          ) {
-            setHasGarden(false)
-            return
-          }
+        await getGarden()
+        const response = await getNotes()
 
-          throw gardenError
+        if (active) {
+          setNotes(response.notes)
+        }
+      } catch (requestError) {
+        if (!active) {
+          return
         }
 
-        const response =
-          await getNotes()
-
-        setNotes(response.notes)
-      } catch (error) {
-        setError(error.message)
+        if (requestError.status === 404) {
+          setHasGarden(false)
+        } else {
+          setError(requestError.message)
+        }
       } finally {
-        setIsLoading(false)
+        if (active) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadPage()
+
+    return () => {
+      active = false
+    }
   }, [])
 
-  useEffect(() => {
-    if (
-      !selectedNoteId ||
-      isLoading ||
-      isLoadingNotes
-    ) {
-      return
-    }
-
-    const selectedElement =
-      document.getElementById(
-        `note-${selectedNoteId}`,
-      )
-
-    if (!selectedElement) {
-      return
-    }
-
-    requestAnimationFrame(() => {
-      selectedElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      })
-    })
-  }, [
-    selectedNoteId,
-    notes,
-    isLoading,
-    isLoadingNotes,
-  ])
-
-  async function loadNotes(
-    maturity = maturityFilter,
-  ) {
+  async function handleFilter(event) {
+    const maturity = event.target.value
+    setMaturityFilter(maturity)
+    setIsFiltering(true)
     setError('')
-    setIsLoadingNotes(true)
 
     try {
-      const response =
-        await getNotes(
-          maturity || undefined,
-        )
+      const response = await getNotes(
+        maturity || undefined,
+      )
 
       setNotes(response.notes)
-    } catch (error) {
-      setError(error.message)
+    } catch (requestError) {
+      setError(requestError.message)
     } finally {
-      setIsLoadingNotes(false)
+      setIsFiltering(false)
     }
   }
 
-  async function handleMaturityFilterChange(
-    event,
-  ) {
-    const value =
-      event.target.value
-
-    setMaturityFilter(value)
-
-    await loadNotes(value)
-  }
-
-  async function handleCreateNote(
-    event,
-  ) {
-    event.preventDefault()
-
-    setError('')
-    setNoteMessage('')
-    setIsCreatingNote(true)
-
-    try {
-      await createNote({
-        title: newNoteTitle,
-        content: newNoteContent,
-        maturity: newNoteMaturity,
-      })
-
-      setNewNoteTitle('')
-      setNewNoteContent('')
-      setNewNoteMaturity('seed')
-
-      setNoteMessage(
-        'Nota creada correctamente.',
-      )
-
-      await loadNotes()
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setIsCreatingNote(false)
-    }
-  }
-
-  function startEditingNote(note) {
-    setError('')
-    setNoteMessage('')
-
-    setEditingNoteId(note.id)
-
-    setEditNoteTitle(
-      note.title,
-    )
-
-    setEditNoteContent(
-      note.content ?? '',
-    )
-
-    setEditNoteMaturity(
-      note.maturity,
-    )
-  }
-
-  function cancelEditingNote() {
-    setEditingNoteId(null)
-    setEditNoteTitle('')
-    setEditNoteContent('')
-    setEditNoteMaturity('seed')
-  }
-
-  async function handleUpdateNote(
-    event,
-    noteId,
-  ) {
-    event.preventDefault()
-
-    setError('')
-    setNoteMessage('')
-    setIsUpdatingNote(true)
-
-    try {
-      await updateNote(
-        noteId,
-        {
-          title: editNoteTitle,
-          content: editNoteContent,
-          maturity: editNoteMaturity,
-        },
-      )
-
-      cancelEditingNote()
-
-      setNoteMessage(
-        'Nota actualizada correctamente.',
-      )
-
-      await loadNotes()
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setIsUpdatingNote(false)
-    }
-  }
-
-  function requestDeleteNote(note) {
-    setError('')
-    setNoteMessage('')
-    setNoteToDelete(note)
-  }
-
-  async function confirmDeleteNote() {
+  async function handleDelete() {
     if (!noteToDelete) {
       return
     }
 
-    const noteId =
-      noteToDelete.id
-
+    setDeletingNoteId(noteToDelete.id)
     setError('')
-    setNoteMessage('')
-    setDeletingNoteId(noteId)
 
     try {
-      await deleteNote(noteId)
-
-      if (
-        editingNoteId === noteId
-      ) {
-        cancelEditingNote()
-      }
-
-      setNoteMessage(
-        'Nota eliminada correctamente.',
+      await deleteNote(noteToDelete.id)
+      setNotes((current) =>
+        current.filter(
+          (note) =>
+            note.id !== noteToDelete.id,
+        ),
       )
-
       setNoteToDelete(null)
-
-      await loadNotes()
-    } catch (error) {
-      setError(error.message)
+    } catch (requestError) {
+      setError(requestError.message)
     } finally {
       setDeletingNoteId(null)
     }
   }
 
-  function getMaturityLabel(
-    maturity,
-  ) {
-    if (maturity === 'seed') {
-      return '🌱 Semilla'
-    }
-
-    if (maturity === 'budding') {
-      return '🌿 Brote'
-    }
-
-    if (maturity === 'tree') {
-      return '🌳 Árbol'
-    }
-
-    return maturity
-  }
-
   if (isLoading) {
     return (
       <p className="text-stone-400">
-        Cargando notas...
+        Abriendo el archivo...
       </p>
     )
   }
@@ -368,428 +180,229 @@ function NotesPage() {
   if (!hasGarden) {
     return (
       <section className="max-w-3xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
-          Digital Garden
+        <p className="eyebrow">
+          Archivo de ideas
         </p>
 
-        <h1 className="mt-3 text-3xl font-semibold">
-          Notas
+        <h1 className="mt-3 text-4xl font-semibold">
+          Crea tu jardín primero
         </h1>
 
-        <div className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-          <h2 className="text-xl font-medium">
-            Primero crea tu jardín
-          </h2>
+        <p className="mt-4 text-stone-400">
+          Tu archivo comenzará cuando exista
+          un jardín donde plantar ideas.
+        </p>
 
-          <p className="mt-3 text-stone-400">
-            Necesitas un jardín antes de poder
-            comenzar a guardar notas.
-          </p>
-
-          <Link
-            to="/profile"
-            className="mt-5 inline-block rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
-          >
-            Ir a Perfil y jardín
-          </Link>
-        </div>
+        <Link
+          to="/profile"
+          className="mt-6 inline-block rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
+        >
+          Ir a Perfil y jardín
+        </Link>
       </section>
     )
   }
 
   return (
-    <div className="max-w-5xl">
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
-          Digital Garden
+    <div className="max-w-6xl">
+      <header className="archive-heading">
+        <div>
+          <p className="eyebrow">
+            Herbario de pensamientos
+          </p>
+
+          <h1 className="mt-3 text-5xl font-semibold leading-none sm:text-6xl">
+            Explorar ideas
+          </h1>
+
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-stone-400">
+            Un archivo personal de intuiciones,
+            preguntas y textos que siguen
+            cambiando con el tiempo.
+          </p>
+        </div>
+
+        <Link
+          to="/notes/new"
+          className="rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
+        >
+          + Plantar una idea
+        </Link>
+      </header>
+
+      <div className="archive-toolbar">
+        <p className="utility-meta">
+          {notes.length}{' '}
+          {notes.length === 1
+            ? 'entrada'
+            : 'entradas'}
         </p>
 
-        <h1 className="mt-3 text-3xl font-semibold">
-          Notas
-        </h1>
+        <label className="flex items-center gap-3 text-sm text-stone-400">
+          <span>Estado</span>
 
-        <p className="mt-3 text-stone-400">
-          Planta ideas y observa cómo
-          evolucionan con el tiempo.
-        </p>
+          <select
+            value={maturityFilter}
+            onChange={handleFilter}
+            disabled={isFiltering}
+            className="border border-stone-700 bg-stone-950 px-4 py-2"
+          >
+            <option value="">
+              Todo el jardín
+            </option>
+            <option value="seed">
+              🌱 Semillas
+            </option>
+            <option value="budding">
+              🌿 Brotes
+            </option>
+            <option value="tree">
+              🌳 Árboles
+            </option>
+          </select>
+        </label>
       </div>
 
       {error && (
-        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p
+          role="alert"
+          className="mt-6 border-l-4 border-red-900 bg-red-950/40 p-4 text-red-300"
+        >
           {error}
         </p>
       )}
 
-      <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-        <h2 className="text-xl font-medium">
-          Plantar una nueva idea
-        </h2>
-
-        <ValidatedForm
-          onSubmit={
-            handleCreateNote
-          }
-          className="mt-6 space-y-5"
+      {isFiltering && (
+        <p
+          role="status"
+          className="mt-8 text-sm text-stone-500"
         >
-          <div>
-            <label
-              htmlFor="newNoteTitle"
-              className="mb-2 block text-sm text-stone-300"
-            >
-              Título (máximo 200 caracteres)
-            </label>
+          Reordenando el archivo...
+        </p>
+      )}
 
-            <input
-              id="newNoteTitle"
-              maxLength={200}
-              type="text"
-              value={newNoteTitle}
-              onChange={(event) =>
-                setNewNoteTitle(
-                  event.target.value,
-                )
-              }
-              className="w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-              required
-            />
+      {!isFiltering &&
+        notes.length === 0 && (
+          <div className="mt-10 border-t border-stone-700 py-12">
+            <p className="text-xl text-stone-400">
+              No hay ideas en esta parte del jardín.
+            </p>
+
+            <Link
+              to="/notes/new"
+              className="mt-4 inline-block text-lime-400"
+            >
+              Plantar la primera →
+            </Link>
           </div>
+        )}
 
-          <div>
-            <label
-              htmlFor="newNoteContent"
-              className="mb-2 block text-sm text-stone-300"
-            >
-              Contenido
-            </label>
-
-            <textarea
-              id="newNoteContent"
-              value={newNoteContent}
-              onChange={(event) =>
-                setNewNoteContent(
-                  event.target.value,
-                )
-              }
-              className="min-h-40 w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="newNoteMaturity"
-              className="mb-2 block text-sm text-stone-300"
-            >
-              Madurez
-            </label>
-
-            <select
-              id="newNoteMaturity"
-              value={
-                newNoteMaturity
-              }
-              onChange={(event) =>
-                setNewNoteMaturity(
-                  event.target.value,
-                )
-              }
-              className="w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-            >
-              <option value="seed">
-                🌱 Semilla
-              </option>
-
-              <option value="budding">
-                🌿 Brote
-              </option>
-
-              <option value="tree">
-                🌳 Árbol
-              </option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={
-              isCreatingNote
-            }
-            className="rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950 disabled:opacity-50"
+      <div className="editorial-index">
+        {notes.map((note, index) => (
+          <article
+            key={note.id}
+            className="editorial-entry"
+            style={{
+              '--entry-index': index,
+            }}
           >
-            {isCreatingNote
-              ? 'Creando...'
-              : 'Crear nota'}
-          </button>
-        </ValidatedForm>
-      </section>
+            <div className="editorial-entry__number">
+              {String(
+                editorialNumbers.get(note.id),
+              ).padStart(2, '0')}
+            </div>
 
-      <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-medium">
-              Mis notas
-            </h2>
+            <div className="editorial-entry__content">
+              <div className="flex flex-wrap items-center gap-3">
+                <MaturityBadge
+                  maturity={note.maturity}
+                />
 
-            <p className="mt-1 text-sm text-stone-500">
-              {notes.length} nota(s)
-            </p>
-          </div>
+                <span className="utility-meta">
+                  Plantada ·{' '}
+                  {new Date(
+                    note.createdAt,
+                  ).toLocaleDateString(
+                    'es-MX',
+                  )}
+                </span>
 
-          <div>
-            <label
-              htmlFor="maturityFilter"
-              className="mb-2 block text-sm text-stone-400"
-            >
-              Filtrar por madurez
-            </label>
+                <span
+                  aria-hidden="true"
+                  className="text-stone-500"
+                >
+                  /
+                </span>
 
-            <select
-              id="maturityFilter"
-              value={
-                maturityFilter
-              }
-              onChange={
-                handleMaturityFilterChange
-              }
-              disabled={
-                isLoadingNotes
-              }
-              className="rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-            >
-              <option value="">
-                Todas
-              </option>
+                <span className="utility-meta">
+                  Último riego ·{' '}
+                  {new Date(
+                    note.updatedAt,
+                  ).toLocaleDateString(
+                    'es-MX',
+                  )}
+                </span>
+              </div>
 
-              <option value="seed">
-                🌱 Semilla
-              </option>
+              <h2 className="mt-5 text-3xl font-semibold leading-tight sm:text-4xl">
+                <Link
+                  to={`/notes/${note.id}`}
+                  className="editorial-title-link"
+                >
+                  {note.title}
+                </Link>
+              </h2>
 
-              <option value="budding">
-                🌿 Brote
-              </option>
+              <p className="mt-5 max-w-3xl whitespace-pre-line text-base leading-7 text-stone-400">
+                {createExcerpt(note.content)}
+              </p>
 
-              <option value="tree">
-                🌳 Árbol
-              </option>
-            </select>
-          </div>
-        </div>
+              <div className="mt-7 flex flex-wrap items-center gap-4">
+                <Link
+                  to={`/notes/${note.id}`}
+                  className="read-more-link"
+                >
+                  Continuar leyendo →
+                </Link>
 
-        {noteMessage && (
-          <p className="mt-4 text-lime-400">
-            {noteMessage}
-          </p>
-        )}
-
-        {isLoadingNotes && (
-          <p className="mt-6 text-stone-400">
-            Cargando notas...
-          </p>
-        )}
-
-        {!isLoadingNotes &&
-          notes.length === 0 && (
-            <p className="mt-6 text-stone-500">
-              No hay notas para mostrar.
-            </p>
-          )}
-
-        <div className="mt-6 space-y-4">
-          {notes.map((note) => {
-            const isSelected =
-              selectedNoteId ===
-              note.id
-
-            return (
-              <article
-                id={`note-${note.id}`}
-                key={note.id}
-                className={[
-                  'rounded-xl bg-stone-950 p-5 transition',
-                  isSelected
-                    ? 'border border-lime-400 ring-2 ring-lime-400/20'
-                    : 'border border-stone-700',
-                ].join(' ')}
-              >
-                {editingNoteId ===
-                note.id ? (
-                  <ValidatedForm
-                    onSubmit={(event) =>
-                      handleUpdateNote(
-                        event,
-                        note.id,
-                      )
-                    }
-                    className="space-y-4"
+                <div className="entry-actions">
+                  <Link
+                    to={`/notes/${note.id}/edit`}
+                    className="secondary-action"
                   >
-                    <input
-                      aria-label="Título de la nota"
-                      maxLength={200}
-                      value={
-                        editNoteTitle
-                      }
-                      onChange={(event) =>
-                        setEditNoteTitle(
-                          event.target.value,
-                        )
-                      }
-                      className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
-                      required
-                    />
+                    Editar
+                  </Link>
 
-                    <textarea
-                      aria-label="Contenido de la nota"
-                      value={
-                        editNoteContent
-                      }
-                      onChange={(event) =>
-                        setEditNoteContent(
-                          event.target.value,
-                        )
-                      }
-                      className="min-h-32 w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
-                    />
-
-                    <select
-                      aria-label="Madurez de la nota"
-                      value={
-                        editNoteMaturity
-                      }
-                      onChange={(event) =>
-                        setEditNoteMaturity(
-                          event.target.value,
-                        )
-                      }
-                      className="w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3"
-                    >
-                      <option value="seed">
-                        🌱 Semilla
-                      </option>
-
-                      <option value="budding">
-                        🌿 Brote
-                      </option>
-
-                      <option value="tree">
-                        🌳 Árbol
-                      </option>
-                    </select>
-
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        type="submit"
-                        disabled={
-                          isUpdatingNote
-                        }
-                        className="rounded-xl bg-lime-400 px-5 py-3 text-stone-950 disabled:opacity-50"
-                      >
-                        {isUpdatingNote
-                          ? 'Guardando...'
-                          : 'Guardar cambios'}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={
-                          cancelEditingNote
-                        }
-                        className="rounded-xl border border-stone-700 px-5 py-3"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </ValidatedForm>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-medium">
-                          {note.title}
-                        </h3>
-
-                        <p className="mt-2 text-sm text-lime-400">
-                          {getMaturityLabel(
-                            note.maturity,
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            startEditingNote(
-                              note,
-                            )
-                          }
-                          className="rounded-lg border border-stone-700 px-4 py-2"
-                        >
-                          Editar
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            requestDeleteNote(
-                              note,
-                            )
-                          }
-                          disabled={
-                            deletingNoteId ===
-                            note.id
-                          }
-                          className="rounded-lg border border-red-900 px-4 py-2 text-red-400 disabled:opacity-50"
-                        >
-                          {deletingNoteId ===
-                          note.id
-                            ? 'Eliminando...'
-                            : 'Eliminar'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="mt-4 whitespace-pre-wrap text-stone-300">
-                      {note.content}
-                    </p>
-
-                    <p className="mt-4 text-xs text-stone-500">
-                      Plantada:{' '}
-                      {new Date(
-                        note.createdAt,
-                      ).toLocaleString(
-                        'es-MX',
-                      )}
-                    </p>
-
-                    <p className="mt-1 text-xs text-stone-500">
-                      Último riego:{' '}
-                      {new Date(
-                        note.updatedAt,
-                      ).toLocaleString(
-                        'es-MX',
-                      )}
-                    </p>
-                  </>
-                )}
-              </article>
-            )
-          })}
-        </div>
-      </section>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNoteToDelete(note)
+                    }
+                    className="secondary-action danger-action"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
 
       <ConfirmDialog
         isOpen={Boolean(noteToDelete)}
-        title="Eliminar nota"
+        title="Eliminar idea"
         message={
           noteToDelete
-            ? `¿Seguro que quieres eliminar "${noteToDelete.title}"?`
+            ? `¿Seguro que quieres eliminar “${noteToDelete.title}”?`
             : ''
         }
-        confirmText="Eliminar nota"
+        confirmText="Eliminar idea"
         isLoading={
           deletingNoteId ===
           noteToDelete?.id
         }
-        onConfirm={confirmDeleteNote}
+        onConfirm={handleDelete}
         onCancel={() =>
           setNoteToDelete(null)
         }

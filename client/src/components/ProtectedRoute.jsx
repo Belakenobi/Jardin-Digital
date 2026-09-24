@@ -46,9 +46,11 @@ function ProtectedRoute({ children }) {
   if (isChecking) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-stone-950 text-stone-100">
-        <p className="text-stone-400">
-          Validando sesión...
-        </p>
+        <div className="text-center">
+          <p aria-hidden="true" className="text-3xl">🌱</p>
+          <p className="mt-3 text-stone-400">Validando sesión...
+          </p>
+        </div>
       </main>
     )
   }

@@ -215,7 +215,7 @@ function ProfilePage() {
   return (
     <div className="max-w-4xl">
       <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
+        <p className="eyebrow">
           Configuración
         </p>
 
@@ -236,7 +236,7 @@ function ProfilePage() {
       )}
 
       {profile && (
-        <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <section className="paper-panel mt-8 p-6 sm:p-7">
           <h2 className="text-xl font-medium">
             Perfil
           </h2>
@@ -293,7 +293,7 @@ function ProfilePage() {
         </section>
       )}
 
-      <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
+      <section className="paper-panel mt-8 p-6 sm:p-7">
         <h2 className="text-xl font-medium">
           {garden
             ? 'Jardín'
@@ -304,7 +304,7 @@ function ProfilePage() {
           <p className="mt-3 text-stone-400">
             Tu cuenta todavía no tiene un
             jardín. Crea uno para poder usar
-            notas, relaciones y galería.
+            ideas, relaciones y galería.
           </p>
         )}
 

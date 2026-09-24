@@ -10,7 +10,7 @@ const statisticCards = [
   ['gardenCount', 'Jardines'],
   ['publicGardenCount', 'Jardines públicos'],
   ['privateGardenCount', 'Jardines privados'],
-  ['noteCount', 'Notas'],
+  ['noteCount', 'Ideas'],
   ['relationCount', 'Relaciones'],
   ['galleryImageCount', 'Imágenes'],
 ]
@@ -55,7 +55,7 @@ function AdminPage() {
   return (
     <div className="max-w-7xl">
       <header>
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
+        <p className="eyebrow">
           Administración
         </p>
 
@@ -82,7 +82,7 @@ function AdminPage() {
           {statisticCards.map(([key, label]) => (
             <article
               key={key}
-              className="rounded-2xl border border-stone-800 bg-stone-900 p-6"
+              className="border-t border-stone-700 py-5"
             >
               <p className="text-sm text-stone-400">
                 {label}

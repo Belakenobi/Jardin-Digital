@@ -67,17 +67,17 @@ function HomePage() {
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12 sm:py-16">
         <section aria-labelledby="intro-title" className="max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.3em] text-lime-400">
+          <p className="eyebrow">
             Ideas en crecimiento
           </p>
 
-          <h1 id="intro-title" className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl">
+          <h1 id="intro-title" className="mt-5 text-5xl font-semibold leading-[0.95] sm:text-7xl">
             Cultiva ideas. Conecta pensamientos.
           </h1>
 
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-300">
             Un espacio para cultivar ideas, conectarlas y dejarlas evolucionar.
-            Cada nota puede crecer de Semilla a Brote y convertirse en Árbol,
+            Cada idea puede crecer de Semilla a Brote y convertirse en Árbol,
             a tu propio ritmo.
           </p>
 
@@ -107,17 +107,17 @@ function HomePage() {
                 </p>
 
                 <p className="mt-3 max-w-2xl text-stone-400">
-                  Digital Garden te permite guardar notas, conectar pensamientos
+                  Digital Garden te permite guardar ideas, conectar pensamientos
                   y ver cómo crecen tus ideas. Puedes crear tu propio jardín
                   y decidir si quieres compartirlo.
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                 {gardens.slice(0, 6).map((garden) => (
                   <article
                     key={garden.id}
-                    className="flex min-w-0 flex-col rounded-2xl border border-stone-800 bg-stone-900 p-6"
+                    className="flex min-w-0 flex-col border-t border-stone-700 py-6"
                   >
                     <h3 className="wrap-anywhere text-xl font-semibold">
                       {garden.name}
@@ -133,7 +133,7 @@ function HomePage() {
 
                     <div className="mt-auto pt-6">
                       <p className="text-sm text-stone-400">
-                        {garden.noteCount} {garden.noteCount === 1 ? 'nota' : 'notas'}
+                        {garden.noteCount} {garden.noteCount === 1 ? 'idea' : 'ideas'}
                       </p>
 
                       {garden.maturityCounts && (

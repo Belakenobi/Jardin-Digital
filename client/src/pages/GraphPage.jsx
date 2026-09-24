@@ -38,19 +38,19 @@ const maturityConfig = {
   seed: {
     emoji: '🌱',
     label: 'Semilla',
-    borderColor: '#a3e635',
+    borderColor: '#76945d',
   },
 
   budding: {
     emoji: '🌿',
     label: 'Brote',
-    borderColor: '#65a30d',
+    borderColor: '#557a48',
   },
 
   tree: {
     emoji: '🌳',
     label: 'Árbol',
-    borderColor: '#3f6212',
+    borderColor: '#315c3a',
   },
 }
 
@@ -59,9 +59,9 @@ const nodeBaseStyle = {
   minHeight: NODE_HEIGHT,
   padding: 14,
   borderRadius: 14,
-  background: '#1c1917',
-  color: '#f5f5f4',
-  border: '1px solid #44403c',
+  background: '#faf7ec',
+  color: '#25271e',
+  border: '1px solid #b9b39d',
   fontSize: 14,
   fontWeight: 500,
 }
@@ -71,10 +71,10 @@ const imageNodeBaseStyle = {
   height: 32,
   padding: 0,
   borderRadius: '9999px',
-  background: '#fef08a',
-  border: '2px solid #fde047',
+  background: '#e8c94a',
+  border: '2px solid #8b7513',
   boxShadow:
-    '0 0 8px rgba(253, 224, 71, 0.9), 0 0 22px rgba(253, 224, 71, 0.45)',
+    '0 0 0 4px rgba(232, 201, 74, 0.2)',
 }
 
 function createInitialPosition(
@@ -170,7 +170,7 @@ function createNotePreview(content) {
     content?.trim() ?? ''
 
   if (!text) {
-    return 'Esta nota todavía no tiene contenido.'
+    return 'Esta idea todavía no tiene contenido.'
   }
 
   if (
@@ -461,7 +461,7 @@ function GraphPage() {
               },
 
               style: {
-                stroke: '#84cc16',
+                stroke: '#315c3a',
                 strokeWidth: 1.7,
                 opacity: 0.75,
               },
@@ -485,7 +485,7 @@ function GraphPage() {
               },
 
               style: {
-                stroke: '#fde047',
+                stroke: '#b99a1c',
                 strokeWidth: 1.2,
                 strokeDasharray:
                   '2 9',
@@ -612,7 +612,7 @@ function GraphPage() {
         (note) =>
           note.id === noteId,
       )?.title
-      ?? 'Nota no disponible'
+      ?? 'Idea no disponible'
     )
   }
 
@@ -675,7 +675,7 @@ function GraphPage() {
               animated: false,
 
               style: {
-                stroke: '#fde047',
+                stroke: '#b99a1c',
                 strokeWidth: 1.2,
                 strokeDasharray:
                   '2 9',
@@ -690,7 +690,7 @@ function GraphPage() {
             animated: false,
 
             style: {
-              stroke: '#84cc16',
+              stroke: '#315c3a',
               strokeWidth: 1.7,
               opacity: 0.75,
             },
@@ -769,7 +769,7 @@ function GraphPage() {
 
               boxShadow:
                 isConnected
-                  ? '0 0 10px rgba(253, 224, 71, 1), 0 0 30px rgba(253, 224, 71, 0.65)'
+                  ? '0 0 0 3px rgba(232, 201, 74, 0.32)'
                   : 'none',
             },
           }
@@ -799,7 +799,7 @@ function GraphPage() {
 
             borderColor:
               isSelected
-                ? '#bef264'
+                ? '#315c3a'
                 : maturity.borderColor,
 
             opacity:
@@ -809,9 +809,9 @@ function GraphPage() {
 
             boxShadow:
               isSelected
-                ? '0 0 0 2px #a3e635, 0 0 25px rgba(163, 230, 53, 0.35)'
+                ? '0 0 0 3px rgba(49, 92, 58, 0.22)'
                 : isConnected
-                  ? '0 0 18px rgba(132, 204, 22, 0.16)'
+                  ? '0 0 0 2px rgba(49, 92, 58, 0.12)'
                   : 'none',
           },
         }
@@ -835,8 +835,8 @@ function GraphPage() {
             style: {
               stroke:
                 isConnected
-                  ? '#fde047'
-                  : '#57534e',
+                  ? '#b99a1c'
+                  : '#8d8978',
 
               strokeWidth:
                 isConnected
@@ -866,8 +866,8 @@ function GraphPage() {
           style: {
             stroke:
               isConnected
-                ? '#bef264'
-                : '#57534e',
+                ? '#315c3a'
+                : '#8d8978',
 
             strokeWidth:
               isConnected
@@ -967,7 +967,7 @@ function GraphPage() {
 
             boxShadow:
               isRelatedNote
-                ? '0 0 0 2px #fde047, 0 0 25px rgba(253, 224, 71, 0.25)'
+                ? '0 0 0 3px rgba(232, 201, 74, 0.28)'
                 : 'none',
           },
         }
@@ -992,8 +992,8 @@ function GraphPage() {
             style: {
               stroke:
                 isSelectedEdge
-                  ? '#fde047'
-                  : '#57534e',
+                  ? '#b99a1c'
+                  : '#8d8978',
 
               strokeWidth:
                 isSelectedEdge
@@ -1017,7 +1017,7 @@ function GraphPage() {
           animated: false,
 
           style: {
-            stroke: '#57534e',
+            stroke: '#8d8978',
             strokeWidth: 1,
             opacity: 0.08,
           },
@@ -1077,7 +1077,7 @@ function GraphPage() {
   return (
     <section>
       <div>
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-lime-400">
+        <p className="eyebrow">
           Mapa de conocimiento
         </p>
 
@@ -1086,7 +1086,7 @@ function GraphPage() {
         </h2>
 
         <p className="mt-3 max-w-2xl text-stone-400">
-          Explora tus notas, mueve los nodos
+          Explora tus ideas, mueve los nodos
           y selecciona una idea para descubrir
           sus conexiones.
         </p>
@@ -1111,11 +1111,11 @@ function GraphPage() {
 
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-xs text-stone-500">
           <span>
-            Flecha verde = relación entre notas
+            Flecha verde = relación entre ideas
           </span>
 
           <span>
-            Línea amarilla discontinua = imagen asociada a una nota
+            Línea amarilla discontinua = imagen asociada a una idea
           </span>
         </div>
       </div>
@@ -1123,11 +1123,11 @@ function GraphPage() {
       {nodes.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-8 text-center">
           <p className="text-lg font-medium">
-            Tu jardín todavía no tiene notas.
+            Tu jardín todavía no tiene ideas.
           </p>
 
           <p className="mt-2 text-sm text-stone-400">
-            Crea algunas notas para comenzar
+            Crea algunas ideas para comenzar
             a construir tu mapa de conocimiento.
           </p>
         </div>
@@ -1154,7 +1154,7 @@ function GraphPage() {
               fitViewOptions={{
                 padding: 0.25,
               }}
-              colorMode="dark"
+              colorMode="light"
               minZoom={0.2}
               maxZoom={2}
             >
@@ -1164,7 +1164,7 @@ function GraphPage() {
                 }
                 gap={24}
                 size={1}
-                color="#57534e"
+                color="#b9b39d"
               />
 
               <Controls />
@@ -1175,8 +1175,8 @@ function GraphPage() {
             <section className="mt-6 rounded-2xl border border-stone-800 bg-stone-900 p-6">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.2em] text-lime-400">
-                    Nota seleccionada
+                  <p className="eyebrow">
+                    Idea seleccionada
                   </p>
 
                   <h3 className="mt-2 text-2xl font-semibold">
@@ -1244,12 +1244,10 @@ function GraphPage() {
                 </p>
 
                 <Link
-                  to={`/notes?selected=${encodeURIComponent(
-                    selectedNote.id,
-                  )}`}
+                  to={`/notes/${selectedNote.id}`}
                   className="mt-5 inline-block rounded-xl bg-lime-400 px-5 py-3 text-sm font-medium text-stone-950 transition hover:bg-lime-300"
                 >
-                  Abrir nota completa →
+                  Abrir idea completa →
                 </Link>
               </div>
 
@@ -1260,14 +1258,14 @@ function GraphPage() {
                   </h4>
 
                   <p className="mt-1 text-sm text-stone-500">
-                    Esta nota apunta hacia:
+                    Esta idea apunta hacia:
                   </p>
 
                   {selectedRelations
                     .outgoing.length ===
                   0 ? (
                     <p className="mt-3 text-sm text-stone-500">
-                      Esta nota todavía no apunta
+                      Esta idea todavía no apunta
                       hacia otras ideas.
                     </p>
                   ) : (
@@ -1298,14 +1296,14 @@ function GraphPage() {
                   </h4>
 
                   <p className="mt-1 text-sm text-stone-500">
-                    Otras notas apuntan hacia esta nota:
+                    Otras ideas apuntan hacia esta idea:
                   </p>
 
                   {selectedRelations
                     .incoming.length ===
                   0 ? (
                     <p className="mt-3 text-sm text-stone-500">
-                      Ninguna otra nota apunta
+                      Ninguna otra idea apunta
                       todavía hacia esta idea.
                     </p>
                   ) : (
@@ -1338,7 +1336,7 @@ function GraphPage() {
                   </h4>
 
                   <p className="mt-1 text-sm text-stone-500">
-                    Recursos visuales vinculados directamente con esta nota.
+                    Recursos visuales vinculados directamente con esta idea.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-3">
@@ -1434,7 +1432,7 @@ function GraphPage() {
                   </div>
 
                   <Link
-                    to="/gallery"
+                    to={`/gallery?selectedImage=${selectedImage.id}`}
                     className="mt-6 inline-block rounded-xl bg-yellow-300 px-5 py-3 text-sm font-medium text-stone-950 transition hover:bg-yellow-200"
                   >
                     Ver en galería →

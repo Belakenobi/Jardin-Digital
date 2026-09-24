@@ -138,7 +138,7 @@ function DashboardPage() {
           Digital Garden
         </p>
 
-        <h1 className="mt-3 text-4xl font-semibold">
+        <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
           Hola
           {profile?.displayName
             ? `, ${profile.displayName}`
@@ -156,7 +156,7 @@ function DashboardPage() {
 
           <p className="mt-3 max-w-2xl text-stone-400">
             Crea tu jardín personal antes
-            de comenzar a plantar notas,
+            de comenzar a plantar ideas,
             relacionar ideas y guardar
             imágenes.
           </p>
@@ -174,9 +174,9 @@ function DashboardPage() {
 
   return (
     <div className="max-w-6xl">
-      <header>
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
-          Digital Garden
+      <header className="max-w-3xl">
+        <p className="eyebrow">
+          Cuaderno de campo
         </p>
 
         <h1 className="mt-3 text-4xl font-semibold">
@@ -201,10 +201,10 @@ function DashboardPage() {
         </p>
       )}
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+      <section aria-label="Resumen del jardín" className="stat-strip mt-10 grid grid-cols-2 md:grid-cols-4">
+        <div className="stat-cell p-4 sm:p-6">
           <p className="text-sm text-stone-400">
-            Notas
+            Ideas
           </p>
 
           <p className="mt-2 text-4xl font-semibold">
@@ -216,7 +216,7 @@ function DashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <div className="stat-cell p-4 sm:p-6">
           <p className="text-sm text-stone-400">
             🌱 Semillas
           </p>
@@ -230,7 +230,7 @@ function DashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <div className="stat-cell p-4 sm:p-6">
           <p className="text-sm text-stone-400">
             🌿 Brotes / 🌳 Árboles
           </p>
@@ -245,7 +245,7 @@ function DashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <div className="stat-cell p-4 sm:p-6">
           <p className="text-sm text-stone-400">
             Imágenes
           </p>
@@ -260,43 +260,42 @@ function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-xl font-medium">
-          Accesos rápidos
-        </h2>
+      <section className="mt-12">
+        <p className="eyebrow">Recorridos</p>
+        <h2 className="mt-1 text-2xl font-medium">Accesos rápidos</h2>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-x-8 gap-y-3 md:grid-cols-2 xl:grid-cols-4">
           <Link
-            to="/notes"
-            className="group rounded-2xl border border-stone-800 bg-stone-900 p-6 transition hover:border-lime-500"
+            to="/notes/new"
+            className="quick-link group block py-6 pr-10 transition"
           >
-            <p className="text-3xl">
+            <p className="text-xl">
               🌱
             </p>
 
-            <h3 className="mt-4 font-medium">
+            <h3 className="mt-3 text-lg font-medium">
               Plantar una idea
             </h3>
 
             <p className="mt-2 text-sm text-stone-500">
               Crear, editar y desarrollar
-              tus notas.
+              tus ideas.
             </p>
 
-            <p className="mt-4 text-sm text-lime-400">
-              Ir a notas →
+            <p className="mt-5 text-sm font-medium text-lime-400">
+              Ir a ideas →
             </p>
           </Link>
 
           <Link
             to="/relations"
-            className="group rounded-2xl border border-stone-800 bg-stone-900 p-6 transition hover:border-lime-500"
+            className="quick-link group block py-6 pr-10 transition"
           >
-            <p className="text-3xl">
+            <p className="text-xl">
               🔗
             </p>
 
-            <h3 className="mt-4 font-medium">
+            <h3 className="mt-3 text-lg font-medium">
               Conectar ideas
             </h3>
 
@@ -305,20 +304,20 @@ function DashboardPage() {
               backlinks.
             </p>
 
-            <p className="mt-4 text-sm text-lime-400">
+            <p className="mt-5 text-sm font-medium text-lime-400">
               Ir a relaciones →
             </p>
           </Link>
 
           <Link
             to="/gallery"
-            className="group rounded-2xl border border-stone-800 bg-stone-900 p-6 transition hover:border-lime-500"
+            className="quick-link group block py-6 pr-10 transition"
           >
-            <p className="text-3xl">
+            <p className="text-xl">
               🖼️
             </p>
 
-            <h3 className="mt-4 font-medium">
+            <h3 className="mt-3 text-lg font-medium">
               Añadir imagen
             </h3>
 
@@ -327,20 +326,20 @@ function DashboardPage() {
               con tus ideas.
             </p>
 
-            <p className="mt-4 text-sm text-lime-400">
+            <p className="mt-5 text-sm font-medium text-lime-400">
               Ir a galería →
             </p>
           </Link>
 
           <Link
             to="/profile"
-            className="group rounded-2xl border border-stone-800 bg-stone-900 p-6 transition hover:border-lime-500"
+            className="quick-link group block py-6 pr-10 transition"
           >
-            <p className="text-3xl">
+            <p className="text-xl">
               ⚙️
             </p>
 
-            <h3 className="mt-4 font-medium">
+            <h3 className="mt-3 text-lg font-medium">
               Mi jardín
             </h3>
 
@@ -349,7 +348,7 @@ function DashboardPage() {
               del jardín.
             </p>
 
-            <p className="mt-4 text-sm text-lime-400">
+            <p className="mt-5 text-sm font-medium text-lime-400">
               Configurar →
             </p>
           </Link>
@@ -357,7 +356,7 @@ function DashboardPage() {
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <div className="paper-panel p-5 sm:p-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-medium">
               Estado de tus ideas
@@ -410,17 +409,17 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6">
+        <div className="paper-panel p-5 sm:p-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-medium">
-              Notas recientes
+              Ideas recientes
             </h2>
 
             <Link
               to="/notes"
               className="text-sm text-lime-400"
             >
-              Ver notas
+              Ver ideas
             </Link>
           </div>
 
@@ -432,19 +431,20 @@ function DashboardPage() {
               </p>
 
               <Link
-                to="/notes"
+                to="/notes/new"
                 className="mt-4 inline-block text-sm text-lime-400"
               >
-                Crear primera nota →
+                Crear primera idea →
               </Link>
             </div>
           ) : (
             <div className="mt-6 space-y-3">
               {recentNotes.map(
                 (note) => (
-                  <div
+                  <Link
                     key={note.id}
-                    className="rounded-xl border border-stone-800 bg-stone-950 p-4"
+                    to={`/notes/${note.id}`}
+                    className="block rounded-xl border border-stone-800 bg-stone-950 p-4 transition hover:border-lime-400"
                   >
                     <p className="font-medium">
                       {note.title}
@@ -458,7 +458,7 @@ function DashboardPage() {
                         'es-MX',
                       )}
                     </p>
-                  </div>
+                  </Link>
                 ),
               )}
             </div>

@@ -78,7 +78,7 @@ function PublicGardenPage() {
     <div className="min-h-screen bg-stone-950 text-stone-100">
       <header className="border-b border-stone-800 bg-stone-900">
         <div className="mx-auto max-w-5xl px-6 py-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-lime-400">
+          <p className="eyebrow">
             Digital Garden
           </p>
 
@@ -110,7 +110,7 @@ function PublicGardenPage() {
 
         <div className="mb-8 flex flex-wrap gap-4 text-sm text-stone-400">
           <span>
-            {notes.length} notas
+            {notes.length} {notes.length === 1 ? 'idea' : 'ideas'}
           </span>
 
           <span>
@@ -120,14 +120,14 @@ function PublicGardenPage() {
 
         {notes.length === 0 ? (
           <p className="text-stone-400">
-            Este jardín todavía no tiene notas.
+            Este jardín todavía no tiene ideas.
           </p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="archive-list">
             {notes.map((note) => (
               <article
                 key={note.id}
-                className="rounded-2xl border border-stone-800 bg-stone-900 p-6"
+                className="archive-item px-2 py-7 sm:px-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <h2 className="text-xl font-semibold">

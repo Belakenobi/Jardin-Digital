@@ -48,9 +48,9 @@ function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-950 text-stone-100 flex items-center justify-center px-6">
-      <section className="w-full max-w-md">
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
+    <main className="auth-shell flex min-h-screen items-center justify-center bg-stone-950 px-6 py-12 text-stone-100">
+      <section className="paper-panel w-full max-w-md p-6 sm:p-8">
+        <p className="eyebrow">
           Digital Garden
         </p>
 

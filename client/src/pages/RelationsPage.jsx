@@ -1,268 +1,266 @@
-import ValidatedForm from '../components/ValidatedForm.jsx'
 import {
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 
-import { Link } from 'react-router-dom'
+import {
+  Link,
+  useSearchParams,
+} from 'react-router-dom'
 
 import ConfirmDialog from '../components/ConfirmDialog.jsx'
-
+import MaturityBadge from '../components/MaturityBadge.jsx'
+import { getGarden } from '../services/garden.js'
+import { getNotes } from '../services/notes.js'
 import {
-  getNotes,
-} from '../services/notes.js'
-
-import {
-  getRelationsForNote,
-  createRelation,
   deleteRelation,
+  getRelationsForNote,
 } from '../services/relations.js'
 
-import {
-  getGarden,
-} from '../services/garden.js'
-
 function RelationsPage() {
-  const [hasGarden, setHasGarden] =
-    useState(true)
+  const [searchParams, setSearchParams] =
+    useSearchParams()
 
-  const [allNotes, setAllNotes] =
+  const [notes, setNotes] =
     useState([])
 
-  const [
-    selectedRelationNoteId,
-    setSelectedRelationNoteId,
-  ] = useState('')
+  const [relations, setRelations] =
+    useState({
+      outgoing: [],
+      incoming: [],
+    })
 
-  const [
-    targetRelationNoteId,
-    setTargetRelationNoteId,
-  ] = useState('')
-
-  const [
-    relations,
-    setRelations,
-  ] = useState({
-    outgoing: [],
-    incoming: [],
-  })
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
+  const [isLoading, setIsLoading] =
+    useState(true)
 
   const [
     isLoadingRelations,
     setIsLoadingRelations,
   ] = useState(false)
 
-  const [
-    isCreatingRelation,
-    setIsCreatingRelation,
-  ] = useState(false)
+  const [hasGarden, setHasGarden] =
+    useState(true)
+
+  const [relationToDelete, setRelationToDelete] =
+    useState(null)
 
   const [
     deletingRelationId,
     setDeletingRelationId,
   ] = useState(null)
 
-  const [
-    relationToDelete,
-    setRelationToDelete,
-  ] = useState(null)
-
   const [error, setError] =
     useState('')
 
-  const [
-    relationMessage,
-    setRelationMessage,
-  ] = useState('')
+  const requestedNoteId =
+    searchParams.get('idea')
+
+  const selectedNote =
+    notes.find(
+      (note) =>
+        note.id === requestedNoteId,
+    ) ?? notes[0] ?? null
+
+  const selectedNoteId =
+    selectedNote?.id ?? ''
+
+  const notesById = useMemo(
+    () =>
+      new Map(
+        notes.map((note) => [
+          note.id,
+          note,
+        ]),
+      ),
+    [notes],
+  )
 
   useEffect(() => {
+    let active = true
+
     async function loadPage() {
-      setError('')
-
       try {
-        try {
-          await getGarden()
-          setHasGarden(true)
-        } catch (gardenError) {
-          if (gardenError.status === 404) {
-            setHasGarden(false)
-            return
-          }
+        await getGarden()
+        const response = await getNotes()
 
-          throw gardenError
+        if (active) {
+          setNotes(response.notes)
+        }
+      } catch (requestError) {
+        if (!active) {
+          return
         }
 
-        const notesResponse =
-          await getNotes()
-
-        setAllNotes(
-          notesResponse.notes,
-        )
-      } catch (error) {
-        setError(error.message)
+        if (requestError.status === 404) {
+          setHasGarden(false)
+        } else {
+          setError(requestError.message)
+        }
       } finally {
-        setIsLoading(false)
+        if (active) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadPage()
+
+    return () => {
+      active = false
+    }
   }, [])
 
-  async function loadRelations(
-    noteId,
-  ) {
-    if (!noteId) {
-      setRelations({
-        outgoing: [],
-        incoming: [],
-      })
+  useEffect(() => {
+    let active = true
 
-      return
+    async function loadRelations() {
+      if (!selectedNoteId) {
+        setRelations({
+          outgoing: [],
+          incoming: [],
+        })
+        return
+      }
+
+      setIsLoadingRelations(true)
+      setError('')
+
+      try {
+        const response =
+          await getRelationsForNote(
+            selectedNoteId,
+          )
+
+        if (active) {
+          setRelations(
+            response.relations,
+          )
+        }
+      } catch (requestError) {
+        if (active) {
+          setError(requestError.message)
+        }
+      } finally {
+        if (active) {
+          setIsLoadingRelations(false)
+        }
+      }
     }
 
-    setError('')
-    setRelationMessage('')
-    setIsLoadingRelations(true)
+    loadRelations()
 
-    try {
-      const response =
-        await getRelationsForNote(
-          noteId,
-        )
-
-      setRelations(
-        response.relations,
-      )
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setIsLoadingRelations(false)
+    return () => {
+      active = false
     }
+  }, [selectedNoteId])
+
+  function selectNote(noteId) {
+    setSearchParams({
+      idea: noteId,
+    })
   }
 
-  async function handleRelationNoteChange(
-    event,
-  ) {
-    const noteId =
-      event.target.value
-
-    setSelectedRelationNoteId(
-      noteId,
-    )
-
-    setTargetRelationNoteId('')
-
-    await loadRelations(noteId)
-  }
-
-  async function handleCreateRelation(
-    event,
-  ) {
-    event.preventDefault()
-
-    if (
-      !selectedRelationNoteId ||
-      !targetRelationNoteId
-    ) {
-      setError('Selecciona una nota de origen y una nota de destino.')
-      return
-    }
-
-    setError('')
-    setRelationMessage('')
-    setIsCreatingRelation(true)
-
-    try {
-      await createRelation({
-        sourceNoteId:
-          selectedRelationNoteId,
-        targetNoteId:
-          targetRelationNoteId,
-      })
-
-      setTargetRelationNoteId('')
-
-      setRelationMessage(
-        'Relación creada correctamente.',
-      )
-
-      await loadRelations(
-        selectedRelationNoteId,
-      )
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setIsCreatingRelation(false)
-    }
-  }
-
-  function requestDeleteRelation(
-    relation,
-  ) {
-    setError('')
-    setRelationMessage('')
-    setRelationToDelete(relation)
-  }
-
-  async function confirmDeleteRelation() {
+  async function handleDelete() {
     if (!relationToDelete) {
       return
     }
 
-    const relationId =
-      relationToDelete.id
-
-    setError('')
-    setRelationMessage('')
     setDeletingRelationId(
-      relationId,
+      relationToDelete.id,
     )
+    setError('')
 
     try {
       await deleteRelation(
-        relationId,
+        relationToDelete.id,
       )
 
-      setRelationMessage(
-        'Relación eliminada correctamente.',
-      )
+      setRelations((current) => ({
+        outgoing:
+          current.outgoing.filter(
+            (relation) =>
+              relation.id !==
+              relationToDelete.id,
+          ),
+        incoming:
+          current.incoming.filter(
+            (relation) =>
+              relation.id !==
+              relationToDelete.id,
+          ),
+      }))
 
       setRelationToDelete(null)
-
-      await loadRelations(
-        selectedRelationNoteId,
-      )
-    } catch (error) {
-      setError(error.message)
+    } catch (requestError) {
+      setError(requestError.message)
     } finally {
       setDeletingRelationId(null)
     }
   }
 
-  function getNoteTitle(
-    noteId,
+  function renderRelation(
+    relation,
+    direction,
   ) {
-    const note =
-      allNotes.find(
-        (currentNote) =>
-          currentNote.id === noteId,
-      )
+    const relatedId =
+      direction === 'incoming'
+        ? relation.sourceNoteId
+        : relation.targetNoteId
+
+    const related =
+      notesById.get(relatedId)
 
     return (
-      note?.title ??
-      'Nota no disponible'
+      <article
+        key={relation.id}
+        className="connection-branch"
+      >
+        <Link
+          to={`/notes/${relatedId}`}
+          className="connection-branch__title"
+        >
+          {related?.title ??
+            'Idea no disponible'}
+        </Link>
+
+        {related && (
+          <MaturityBadge
+            maturity={related.maturity}
+          />
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              selectNote(relatedId)
+            }
+            className="secondary-action"
+          >
+            Seguir esta idea
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setRelationToDelete(
+                relation,
+              )
+            }
+            className="secondary-action danger-action"
+          >
+            Eliminar vínculo
+          </button>
+        </div>
+      </article>
     )
   }
 
   if (isLoading) {
     return (
       <p className="text-stone-400">
-        Cargando relaciones...
+        Trazando conexiones...
       </p>
     )
   }
@@ -270,317 +268,205 @@ function RelationsPage() {
   if (!hasGarden) {
     return (
       <section className="max-w-3xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
-          Digital Garden
-        </p>
-
-        <h1 className="mt-3 text-3xl font-semibold">
-          Relaciones
+        <h1 className="text-4xl font-semibold">
+          Crea tu jardín primero
         </h1>
 
-        <div className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-          <h2 className="text-xl font-medium">
-            Primero crea tu jardín
-          </h2>
-
-          <p className="mt-3 text-stone-400">
-            Necesitas un jardín antes de
-            poder relacionar notas.
-          </p>
-
-          <Link
-            to="/profile"
-            className="mt-5 inline-block rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
-          >
-            Ir a Perfil y jardín
-          </Link>
-        </div>
+        <Link
+          to="/profile"
+          className="mt-6 inline-block text-lime-400"
+        >
+          Ir a Perfil y jardín →
+        </Link>
       </section>
     )
   }
 
   return (
-    <div className="max-w-5xl">
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
-          Digital Garden
-        </p>
+    <div className="max-w-7xl">
+      <header className="archive-heading">
+        <div>
+          <p className="eyebrow">
+            Cartografía cercana
+          </p>
 
-        <h1 className="mt-3 text-3xl font-semibold">
-          Relaciones y backlinks
-        </h1>
+          <h1 className="mt-3 text-5xl font-semibold leading-none sm:text-6xl">
+            Explorar conexiones
+          </h1>
 
-        <p className="mt-3 text-stone-400">
-          Conecta tus notas y observa
-          cuáles apuntan hacia otras ideas.
-        </p>
-      </div>
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-stone-400">
+            Sigue las raíces y ramas de una
+            idea sin perderte en la red
+            completa.
+          </p>
+        </div>
+
+        <Link
+          to={
+            selectedNoteId
+              ? `/relations/new?source=${encodeURIComponent(
+                  selectedNoteId,
+                )}`
+              : '/relations/new'
+          }
+          className="rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
+        >
+          + Conectar ideas
+        </Link>
+      </header>
 
       {error && (
-        <p role="alert" className="mt-6 rounded-xl border border-red-900 bg-red-950/40 p-4 text-red-300">
+        <p
+          role="alert"
+          className="mt-6 border-l-4 border-red-900 bg-red-950/40 p-4 text-red-300"
+        >
           {error}
         </p>
       )}
 
-      <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-        <h2 className="text-xl font-medium">
-          Seleccionar nota
-        </h2>
-
-        {allNotes.length === 0 ? (
-          <div className="mt-5">
-            <p className="text-stone-400">
-              Todavía no tienes notas para
-              relacionar.
-            </p>
-
-            <Link
-              to="/notes"
-              className="mt-4 inline-block rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950"
-            >
-              Crear notas
-            </Link>
-          </div>
-        ) : (
-          <select
-            value={
-              selectedRelationNoteId
-            }
-            onChange={
-              handleRelationNoteChange
-            }
-            className="mt-6 w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-          >
-            <option value="">
-              Selecciona una nota
-            </option>
-
-            {allNotes.map((note) => (
-              <option
-                key={note.id}
-                value={note.id}
-              >
-                {note.title}
-              </option>
-            ))}
-          </select>
-        )}
-      </section>
-
-      {selectedRelationNoteId && (
-        <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-          <h2 className="text-xl font-medium">
-            Crear relación
-          </h2>
-
-          <p className="mt-2 text-sm text-stone-400">
-            Nota origen:{' '}
-            <span className="text-stone-200">
-              {getNoteTitle(
-                selectedRelationNoteId,
-              )}
-            </span>
+      {notes.length === 0 ? (
+        <div className="mt-10 border-t border-stone-700 py-12">
+          <p className="text-xl text-stone-400">
+            Todavía no hay ideas que conectar.
           </p>
 
-          <ValidatedForm
-            onSubmit={
-              handleCreateRelation
-            }
-            className="mt-6"
+          <Link
+            to="/notes/new"
+            className="mt-4 inline-block text-lime-400"
           >
-            <label
-              htmlFor="targetRelation"
-              className="mb-2 block text-sm text-stone-300"
-            >
-              Relacionar con
-            </label>
-
-            <select
-              id="targetRelation"
-              required
-              value={
-                targetRelationNoteId
-              }
-              onChange={(event) =>
-                setTargetRelationNoteId(
-                  event.target.value,
-                )
-              }
-              className="w-full rounded-xl border border-stone-700 bg-stone-950 px-4 py-3"
-            >
-              <option value="">
-                Selecciona una nota
-              </option>
-
-              {allNotes
-                .filter(
-                  (note) =>
-                    note.id !==
-                    selectedRelationNoteId,
-                )
-                .map((note) => (
-                  <option
-                    key={note.id}
-                    value={note.id}
-                  >
+            Plantar una idea →
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="connection-selector">
+            <label htmlFor="connection-note" className="connection-selector__label">
+              <span className="utility-meta">Idea principal</span>
+              <select
+                id="connection-note"
+                value={selectedNoteId}
+                onChange={(event) => selectNote(event.target.value)}
+                className="connection-selector__select"
+              >
+                {notes.map((note) => (
+                  <option key={note.id} value={note.id}>
                     {note.title}
                   </option>
                 ))}
-            </select>
-
-            <button
-              type="submit"
-              disabled={
-                isCreatingRelation
-              }
-              className="mt-4 rounded-xl bg-lime-400 px-5 py-3 font-medium text-stone-950 disabled:opacity-50"
-            >
-              {isCreatingRelation
-                ? 'Creando...'
-                : 'Crear relación'}
-            </button>
-          </ValidatedForm>
-
-          {relationMessage && (
-            <p className="mt-4 text-lime-400">
-              {relationMessage}
-            </p>
-          )}
-        </section>
-      )}
-
-      {selectedRelationNoteId && (
-        <section className="mt-8 rounded-2xl border border-stone-800 bg-stone-900 p-6">
-          <h2 className="text-xl font-medium">
-            Relaciones de la nota
-          </h2>
+              </select>
+            </label>
+          </div>
 
           {isLoadingRelations ? (
-            <p className="mt-6 text-stone-400">
-              Cargando relaciones...
+            <p
+              role="status"
+              className="mt-10 text-stone-500"
+            >
+              Siguiendo raíces y ramas...
             </p>
           ) : (
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              <div>
-                <h3 className="font-medium text-stone-200">
-                  Enlaces salientes
-                </h3>
+            <section className="connection-map">
+              <div className="connection-column connection-column--incoming">
+                <p className="eyebrow">
+                  Backlinks · Raíces
+                </p>
 
-                {relations.outgoing.length ===
-                0 ? (
-                  <p className="mt-3 text-sm text-stone-500">
-                    No hay enlaces salientes.
-                  </p>
-                ) : (
-                  relations.outgoing.map(
-                    (relation) => (
-                      <div
-                        key={
-                          relation.id
-                        }
-                        className="mt-3 rounded-xl border border-stone-700 bg-stone-950 p-4"
-                      >
-                        <p>
-                          →{' '}
-                          {getNoteTitle(
-                            relation.targetNoteId,
-                          )}
-                        </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Llegan hasta aquí
+                </h2>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            requestDeleteRelation(
-                              relation,
-                            )
-                          }
-                          disabled={
-                            deletingRelationId ===
-                            relation.id
-                          }
-                          className="mt-3 text-sm text-red-400 disabled:opacity-50"
-                        >
-                          {deletingRelationId ===
-                          relation.id
-                            ? 'Eliminando...'
-                            : 'Eliminar relación'}
-                        </button>
-                      </div>
-                    ),
-                  )
-                )}
+                <div className="mt-7 space-y-6">
+                  {relations.incoming.length ===
+                  0 ? (
+                    <p className="text-sm leading-6 text-stone-500">
+                      Ninguna idea alimenta esta
+                      raíz todavía.
+                    </p>
+                  ) : (
+                    relations.incoming.map(
+                      (relation) =>
+                        renderRelation(
+                          relation,
+                          'incoming',
+                        ),
+                    )
+                  )}
+                </div>
               </div>
 
-              <div>
-                <h3 className="font-medium text-stone-200">
-                  Backlinks
-                </h3>
+              <div className="connection-core">
+                <span
+                  aria-hidden="true"
+                  className="connection-core__mark"
+                >
+                  ✦
+                </span>
 
-                {relations.incoming.length ===
-                0 ? (
-                  <p className="mt-3 text-sm text-stone-500">
-                    No hay backlinks.
-                  </p>
-                ) : (
-                  relations.incoming.map(
-                    (relation) => (
-                      <div
-                        key={
-                          relation.id
-                        }
-                        className="mt-3 rounded-xl border border-stone-700 bg-stone-950 p-4"
-                      >
-                        <p>
-                          ←{' '}
-                          {getNoteTitle(
-                            relation.sourceNoteId,
-                          )}
-                        </p>
+                <MaturityBadge
+                  maturity={
+                    selectedNote.maturity
+                  }
+                />
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            requestDeleteRelation(
-                              relation,
-                            )
-                          }
-                          disabled={
-                            deletingRelationId ===
-                            relation.id
-                          }
-                          className="mt-3 text-sm text-red-400 disabled:opacity-50"
-                        >
-                          {deletingRelationId ===
-                          relation.id
-                            ? 'Eliminando...'
-                            : 'Eliminar relación'}
-                        </button>
-                      </div>
-                    ),
-                  )
-                )}
+                <h2 className="mt-5 text-3xl font-semibold leading-tight">
+                  {selectedNote.title}
+                </h2>
+
+                <p className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-stone-400">
+                  {selectedNote.content ||
+                    'Esta idea todavía no tiene contenido.'}
+                </p>
+
+                <Link
+                  to={`/notes/${selectedNote.id}`}
+                  className="mt-6 inline-block text-sm text-lime-400"
+                >
+                  Leer la entrada →
+                </Link>
               </div>
-            </div>
+
+              <div className="connection-column connection-column--outgoing">
+                <p className="eyebrow">
+                  Enlaces · Ramas
+                </p>
+
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Crecen desde aquí
+                </h2>
+
+                <div className="mt-7 space-y-6">
+                  {relations.outgoing.length ===
+                  0 ? (
+                    <p className="text-sm leading-6 text-stone-500">
+                      De esta idea todavía no
+                      nacen otras ramas.
+                    </p>
+                  ) : (
+                    relations.outgoing.map(
+                      (relation) =>
+                        renderRelation(
+                          relation,
+                          'outgoing',
+                        ),
+                    )
+                  )}
+                </div>
+              </div>
+            </section>
           )}
-        </section>
+        </>
       )}
 
       <ConfirmDialog
         isOpen={Boolean(relationToDelete)}
-        title="Eliminar relación"
-        message={
-          relationToDelete
-            ? '¿Seguro que quieres eliminar esta relación entre notas?'
-            : ''
-        }
-        confirmText="Eliminar relación"
+        title="Eliminar conexión"
+        message="¿Seguro que quieres cortar este vínculo entre ideas?"
+        confirmText="Eliminar conexión"
         isLoading={
           deletingRelationId ===
           relationToDelete?.id
         }
-        onConfirm={
-          confirmDeleteRelation
-        }
+        onConfirm={handleDelete}
         onCancel={() =>
           setRelationToDelete(null)
         }
@@ -590,4 +476,3 @@ function RelationsPage() {
 }
 
 export default RelationsPage
-

@@ -14,7 +14,7 @@ function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       role="presentation"
       onMouseDown={(event) => {
         if (
@@ -31,9 +31,9 @@ function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-message"
-        className="w-full max-w-md rounded-2xl border border-stone-700 bg-stone-900 p-6 shadow-2xl"
+        className="paper-panel w-full max-w-md p-6 sm:p-7"
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-950 text-xl font-semibold text-red-400">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-red-900 bg-red-950/40 text-lg font-semibold text-red-400">
           !
         </div>
 
