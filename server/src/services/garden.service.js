@@ -77,3 +77,70 @@ export async function updateGarden(
 
   return getGarden(supabase, userId);
 }
+
+export async function deleteGarden(supabase, userId) {
+  const garden = await getGarden(supabase, userId);
+
+  if (!garden) {
+    return false;
+  }
+
+  const storagePaths = [];
+  const batchSize = 1000;
+  let offset = 0;
+
+  while (true) {
+    const { data: images, error: imagesError } =
+      await supabase
+      .from("gallery_images")
+      .select("storage_path")
+      .eq("garden_id", garden.id)
+      .order("id", { ascending: true })
+      .range(offset, offset + batchSize - 1);
+
+    if (imagesError) {
+      throw imagesError;
+    }
+
+    if (!images || images.length === 0) {
+      break;
+    }
+
+    storagePaths.push(
+      ...images.map(
+        (image) => image.storage_path
+      )
+    );
+
+    offset += images.length;
+  }
+
+  for (
+    let index = 0;
+    index < storagePaths.length;
+    index += batchSize
+  ) {
+    const { error: storageError } =
+      await supabase.storage
+        .from("gallery")
+        .remove(
+          storagePaths.slice(index, index + batchSize)
+        );
+
+    if (storageError) {
+      throw storageError;
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("gardens")
+    .delete()
+    .eq("id", garden.id)
+    .eq("user_id", userId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  return true;
+}

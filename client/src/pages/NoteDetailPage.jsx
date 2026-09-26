@@ -19,6 +19,7 @@ import {
   getNotes,
 } from '../services/notes.js'
 import { getRelationsForNote } from '../services/relations.js'
+import { formatNoteTimestamp } from '../utils/formatNoteTimestamp.js'
 
 function NoteDetailPage() {
   const { noteId } = useParams()
@@ -178,13 +179,13 @@ function NoteDetailPage() {
 
           <span className="utility-meta">
             Plantada{' '}
-            {new Date(
+            {formatNoteTimestamp(
               note.createdAt,
-            ).toLocaleDateString('es-MX')}
+            )}
           </span>
         </div>
 
-        <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-[0.96] sm:text-7xl">
+        <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.96] sm:text-6xl">
           {note.title}
         </h1>
 
@@ -239,7 +240,7 @@ function NoteDetailPage() {
             Archivo visual
           </p>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div className="mt-5 grid max-w-4xl gap-7">
             {images.map((image) => (
               <Link
                 key={image.id}

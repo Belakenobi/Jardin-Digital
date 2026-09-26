@@ -3,6 +3,7 @@ import {
   createGarden,
   updateGarden,
 } from "../services/garden.service.js";
+import * as gardenService from "../services/garden.service.js";
 
 function validateGardenDetails(name, description) {
   if (typeof name === "string" && name.trim().length > 100) {
@@ -169,6 +170,29 @@ export async function updateMyGarden(request, response, next) {
       status: "success",
       message: "Garden updated successfully",
       garden,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function deleteMyGarden(request, response, next) {
+  try {
+    const deleted = await gardenService.deleteGarden(
+      request.supabase,
+      request.user.id
+    );
+
+    if (!deleted) {
+      return response.status(404).json({
+        status: "error",
+        message: "No se encontró tu jardín. Créalo desde Perfil y jardín para continuar.",
+      });
+    }
+
+    return response.status(200).json({
+      status: "success",
+      message: "Garden deleted successfully",
     });
   } catch (error) {
     return next(error);

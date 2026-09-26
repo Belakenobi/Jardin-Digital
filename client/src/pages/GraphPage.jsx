@@ -486,7 +486,7 @@ function GraphPage() {
 
               style: {
                 stroke: '#b99a1c',
-                strokeWidth: 1.2,
+                strokeWidth: 2.2,
                 strokeDasharray:
                   '2 9',
                 opacity: 0.55,
@@ -676,7 +676,7 @@ function GraphPage() {
 
               style: {
                 stroke: '#b99a1c',
-                strokeWidth: 1.2,
+                strokeWidth: 2.2,
                 strokeDasharray:
                   '2 9',
                 opacity: 0.55,
@@ -840,7 +840,7 @@ function GraphPage() {
 
               strokeWidth:
                 isConnected
-                  ? 2
+                  ? 2.8
                   : 1,
 
               strokeDasharray:
@@ -997,7 +997,7 @@ function GraphPage() {
 
               strokeWidth:
                 isSelectedEdge
-                  ? 2.5
+                  ? 3.2
                   : 1,
 
               strokeDasharray:

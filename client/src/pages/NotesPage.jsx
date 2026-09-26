@@ -17,6 +17,7 @@ import {
   deleteNote,
   getNotes,
 } from '../services/notes.js'
+import { formatNoteTimestamp } from '../utils/formatNoteTimestamp.js'
 
 function createExcerpt(content) {
   const text = content?.trim() ?? ''
@@ -313,38 +314,37 @@ function NotesPage() {
             </div>
 
             <div className="editorial-entry__content">
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col items-start gap-4">
                 <MaturityBadge
                   maturity={note.maturity}
                 />
 
-                <span className="utility-meta">
-                  Plantada ·{' '}
-                  {new Date(
-                    note.createdAt,
-                  ).toLocaleDateString(
-                    'es-MX',
-                  )}
-                </span>
+                <dl className="grid w-full max-w-2xl gap-4 sm:grid-cols-2 sm:gap-x-8">
+                  <div className="border-l-2 border-stone-300 pl-3">
+                    <dt className="utility-meta">
+                      Plantada
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-stone-500">
+                      {formatNoteTimestamp(
+                        note.createdAt,
+                      )}
+                    </dd>
+                  </div>
 
-                <span
-                  aria-hidden="true"
-                  className="text-stone-500"
-                >
-                  /
-                </span>
-
-                <span className="utility-meta">
-                  Último riego ·{' '}
-                  {new Date(
-                    note.updatedAt,
-                  ).toLocaleDateString(
-                    'es-MX',
-                  )}
-                </span>
+                  <div className="border-l-2 border-stone-300 pl-3">
+                    <dt className="utility-meta">
+                      Último riego
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-stone-500">
+                      {formatNoteTimestamp(
+                        note.updatedAt,
+                      )}
+                    </dd>
+                  </div>
+                </dl>
               </div>
 
-              <h2 className="mt-5 text-3xl font-semibold leading-tight sm:text-4xl">
+              <h2 className="mt-7 text-3xl font-semibold leading-tight sm:text-4xl">
                 <Link
                   to={`/notes/${note.id}`}
                   className="editorial-title-link"

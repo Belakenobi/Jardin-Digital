@@ -65,6 +65,11 @@ function App() {
       />
 
       <Route
+        path="/garden/:gardenId/notes/:noteId"
+        element={<PublicGardenPage />}
+      />
+
+      <Route
         element={
           <ProtectedRoute>
             {(currentUser) => (

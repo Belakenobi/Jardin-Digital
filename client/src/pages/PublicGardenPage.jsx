@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { getPublicGarden } from '../services/public.js'
+import { formatNoteTimestamp } from '../utils/formatNoteTimestamp.js'
 
 const maturityLabels = {
   seed: 'Semilla 🌱',
@@ -10,7 +11,7 @@ const maturityLabels = {
 }
 
 function PublicGardenPage() {
-  const { gardenId } = useParams()
+  const { gardenId, noteId } = useParams()
 
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -74,6 +75,10 @@ function PublicGardenPage() {
     relations,
   } = data
 
+  const selectedNote = noteId
+    ? notes.find((note) => note.id === noteId)
+    : null
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       <header className="border-b border-stone-800 bg-stone-900">
@@ -119,47 +124,107 @@ function PublicGardenPage() {
           </span>
         </div>
 
-        {notes.length === 0 ? (
+        {noteId && !selectedNote ? (
+          <div className="rounded-2xl border border-stone-800 bg-stone-900 p-8">
+            <p className="text-stone-300">
+              Esta nota no está disponible en este jardín.
+            </p>
+
+            <Link
+              to={'/garden/' + gardenId}
+              className="mt-5 inline-flex text-sm font-medium text-lime-400 hover:text-lime-300"
+            >
+              ← Volver a las notas
+            </Link>
+          </div>
+        ) : selectedNote ? (
+          <article className="mx-auto max-w-3xl">
+            <Link
+              to={'/garden/' + gardenId}
+              className="inline-flex text-sm font-medium text-lime-400 hover:text-lime-300"
+            >
+              ← Todas las notas del jardín
+            </Link>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <span className="whitespace-nowrap rounded-full border border-stone-700 bg-stone-900 px-2.5 py-1 text-xs font-semibold text-lime-300">
+                {maturityLabels[selectedNote.maturity]}
+              </span>
+
+              <span className="text-xs text-stone-500">
+                Plantada:{' '}
+                {formatNoteTimestamp(
+                  selectedNote.createdAt,
+                )}
+              </span>
+
+              <span className="text-xs text-stone-500">
+                Último riego:{' '}
+                {formatNoteTimestamp(
+                  selectedNote.updatedAt,
+                )}
+              </span>
+            </div>
+
+            <h2 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl">
+              {selectedNote.title}
+            </h2>
+
+            <div className="mt-8 border-t border-stone-800 pt-8 text-lg leading-8 text-stone-300">
+              <p className="whitespace-pre-wrap">
+                {selectedNote.content ||
+                  'Esta idea todavía no tiene contenido.'}
+              </p>
+            </div>
+          </article>
+        ) : notes.length === 0 ? (
           <p className="text-stone-400">
             Este jardín todavía no tiene ideas.
           </p>
         ) : (
-          <div className="archive-list">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {notes.map((note) => (
-              <article
+              <Link
                 key={note.id}
-                className="archive-item px-2 py-7 sm:px-4"
+                to={
+                  '/garden/' +
+                  gardenId +
+                  '/notes/' +
+                  note.id
+                }
+                className="group flex min-h-56 flex-col rounded-2xl border border-stone-800 bg-stone-900 p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-lime-500 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-400"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-xl font-semibold">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="line-clamp-2 text-lg font-semibold leading-snug text-stone-100 group-hover:text-lime-300">
                     {note.title}
                   </h2>
 
-                  <span className="whitespace-nowrap rounded-full bg-stone-800 px-3 py-1 text-xs text-lime-300">
+                  <span className="whitespace-nowrap rounded-full border border-stone-700 bg-stone-800 px-2 py-0.5 text-[0.65rem] font-semibold text-lime-300">
                     {maturityLabels[note.maturity]}
                   </span>
                 </div>
 
-                <p className="mt-4 whitespace-pre-wrap text-stone-300">
-                  {note.content}
+                <p className="mt-3 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-stone-400">
+                  {note.content ||
+                    'Esta idea todavía no tiene contenido.'}
                 </p>
 
-                <div className="mt-6 text-xs text-stone-500">
+                <div className="mt-auto space-y-1 pt-5 text-[0.7rem] leading-5 text-stone-500">
                   <p>
                     Plantada:{' '}
-                    {new Date(
+                    {formatNoteTimestamp(
                       note.createdAt,
-                    ).toLocaleDateString()}
+                    )}
                   </p>
 
                   <p>
                     Último riego:{' '}
-                    {new Date(
+                    {formatNoteTimestamp(
                       note.updatedAt,
-                    ).toLocaleDateString()}
+                    )}
                   </p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

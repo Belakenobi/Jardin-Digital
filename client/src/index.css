@@ -632,7 +632,7 @@ select[aria-invalid="true"] {
 
 .journal-image img {
   width: 100%;
-  max-height: 24rem;
+  max-height: 32rem;
   object-fit: cover;
   filter: saturate(0.9);
   transition: filter 220ms ease, transform 220ms ease;

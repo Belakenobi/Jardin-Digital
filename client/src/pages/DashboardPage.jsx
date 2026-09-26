@@ -3,7 +3,10 @@ import {
   useState,
 } from 'react'
 
-import { Link } from 'react-router-dom'
+import {
+  Link,
+  useLocation,
+} from 'react-router-dom'
 
 import {
   getProfile,
@@ -22,6 +25,8 @@ import {
 } from '../services/gallery.js'
 
 function DashboardPage() {
+  const location = useLocation()
+
   const [profile, setProfile] =
     useState(null)
 
@@ -134,6 +139,12 @@ function DashboardPage() {
   if (!hasGarden) {
     return (
       <section className="max-w-4xl">
+        {location.state?.gardenDeleted && (
+          <p className="mb-6 rounded-xl border border-lime-900 bg-lime-950/30 p-4 text-lime-300">
+            Jardín eliminado correctamente.
+          </p>
+        )}
+
         <p className="text-sm uppercase tracking-[0.3em] text-lime-400">
           Digital Garden
         </p>

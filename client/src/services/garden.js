@@ -33,3 +33,9 @@ export function updateGarden({
     }),
   })
 }
+
+export function deleteGarden() {
+  return apiRequest('/garden', {
+    method: 'DELETE',
+  })
+}

@@ -3,6 +3,9 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import ConfirmDialog from '../components/ConfirmDialog.jsx'
 
 import {
   getProfile,
@@ -11,11 +14,14 @@ import {
 
 import {
   createGarden,
+  deleteGarden,
   getGarden,
   updateGarden,
 } from '../services/garden.js'
 
 function ProfilePage() {
+  const navigate = useNavigate()
+
   const [profile, setProfile] = useState(null)
 
   const [displayName, setDisplayName] =
@@ -47,6 +53,16 @@ function ProfilePage() {
   const [
     isSavingGarden,
     setIsSavingGarden,
+  ] = useState(false)
+
+  const [
+    showDeleteGarden,
+    setShowDeleteGarden,
+  ] = useState(false)
+
+  const [
+    isDeletingGarden,
+    setIsDeletingGarden,
   ] = useState(false)
 
   const [error, setError] =
@@ -201,6 +217,33 @@ function ProfilePage() {
       setError(error.message)
     } finally {
       setIsSavingGarden(false)
+    }
+  }
+
+  async function handleGardenDelete() {
+    setError('')
+    setGardenMessage('')
+    setIsDeletingGarden(true)
+
+    try {
+      await deleteGarden()
+
+      setGarden(null)
+      setGardenName('')
+      setGardenDescription('')
+      setGardenIsPublic(false)
+      setShowDeleteGarden(false)
+
+      navigate('/dashboard', {
+        replace: true,
+        state: {
+          gardenDeleted: true,
+        },
+      })
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setIsDeletingGarden(false)
     }
   }
 
@@ -398,6 +441,40 @@ function ProfilePage() {
           </p>
         )}
       </section>
+
+      {garden && (
+        <section className="mt-8 rounded-2xl border border-red-900 bg-red-950/20 p-6 sm:p-7">
+          <h2 className="text-xl font-medium text-red-300">
+            Zona de peligro
+          </h2>
+
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-400">
+            Elimina permanentemente tu jardín y todo su contenido. Tu perfil y tu cuenta permanecerán activos.
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              setShowDeleteGarden(true)
+            }
+            className="mt-5 rounded-xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-500"
+          >
+            Eliminar jardín
+          </button>
+        </section>
+      )}
+
+      <ConfirmDialog
+        isOpen={showDeleteGarden}
+        title="Eliminar jardín"
+        message="Se eliminarán permanentemente el jardín, todas sus notas, relaciones e imágenes. Tu perfil y tu cuenta no se eliminarán."
+        confirmText="Eliminar jardín"
+        isLoading={isDeletingGarden}
+        onConfirm={handleGardenDelete}
+        onCancel={() =>
+          setShowDeleteGarden(false)
+        }
+      />
     </div>
   )
 }
