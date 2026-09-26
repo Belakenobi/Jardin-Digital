@@ -1,0 +1,57 @@
+{
+  "component": {
+    "key": "digital-Garden",
+    "name": "Digital Garden",
+    "qualifier": "TRK",
+    "measures": [
+      {
+        "metric": "coverage",
+        "value": "77.3",
+        "bestValue": false
+      },
+      {
+        "metric": "bugs",
+        "value": "0",
+        "bestValue": true
+      },
+      {
+        "metric": "complexity",
+        "value": "937"
+      },
+      {
+        "metric": "code_smells",
+        "value": "25",
+        "bestValue": false
+      },
+      {
+        "metric": "duplicated_lines_density",
+        "value": "1.4",
+        "bestValue": false
+      },
+      {
+        "metric": "cognitive_complexity",
+        "value": "700",
+        "bestValue": false
+      },
+      {
+        "metric": "ncloc",
+        "value": "9856"
+      },
+      {
+        "metric": "sqale_debt_ratio",
+        "value": "0.1",
+        "bestValue": false
+      },
+      {
+        "metric": "vulnerabilities",
+        "value": "0",
+        "bestValue": true
+      },
+      {
+        "metric": "sqale_index",
+        "value": "159",
+        "bestValue": false
+      }
+    ]
+  }
+}

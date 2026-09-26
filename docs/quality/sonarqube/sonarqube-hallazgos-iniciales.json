@@ -1,0 +1,1566 @@
+{
+  "total": 25,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 25
+  },
+  "effortTotal": 159,
+  "issues": [
+    {
+      "key": "5d3b8d43-7a3a-4673-9060-ffa21cb192e1",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/HomePage.jsx",
+      "project": "digital-Garden",
+      "line": 99,
+      "hash": "4b918b7cb55ff7c6957217214716ec4f",
+      "textRange": {
+        "startLine": 99,
+        "endLine": 167,
+        "startOffset": 16,
+        "endOffset": 13
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-24T07:51:18+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "d8fc1e85-44f8-46b1-b1fa-a3b35e537ff7",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/HomePage.jsx",
+      "project": "digital-Garden",
+      "line": 103,
+      "hash": "44ba53fb8e0f1a37013dba280c6c91ba",
+      "textRange": {
+        "startLine": 103,
+        "endLine": 167,
+        "startOffset": 16,
+        "endOffset": 13
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-24T07:51:18+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "172a2016-0742-4638-b808-3ae14a1ae046",
+      "rule": "javascript:S6772",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/HomePage.jsx",
+      "project": "digital-Garden",
+      "line": 161,
+      "hash": "1ec686c7e637aa8e823ec50454bca6f0",
+      "textRange": {
+        "startLine": 161,
+        "endLine": 161,
+        "startOffset": 0,
+        "endOffset": 129
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Ambiguous spacing before next element span",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "react"
+      ],
+      "creationDate": "2026-09-24T07:48:50+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FORMATTED",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        },
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "299a69c2-b440-484c-88a2-7892bc90bbba",
+      "rule": "javascript:S6772",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/PublicGardenPage.jsx",
+      "project": "digital-Garden",
+      "line": 108,
+      "hash": "c78999befe40d70b99fc9ce5c76c9187",
+      "textRange": {
+        "startLine": 108,
+        "endLine": 108,
+        "startOffset": 0,
+        "endOffset": 43
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Ambiguous spacing after previous element span",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "react"
+      ],
+      "creationDate": "2026-09-24T07:48:50+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FORMATTED",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        },
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "5c32ad1c-1df1-40bc-8bec-d92654b0b259",
+      "rule": "javascript:S6772",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/PublicGardenPage.jsx",
+      "project": "digital-Garden",
+      "line": 173,
+      "hash": "8afee750d5333c3f22feb226bcc28cbd",
+      "textRange": {
+        "startLine": 173,
+        "endLine": 173,
+        "startOffset": 0,
+        "endOffset": 45
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Ambiguous spacing before next element span",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "react"
+      ],
+      "creationDate": "2026-09-24T07:48:50+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FORMATTED",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        },
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "a94f36f1-ced5-43ea-ad92-ed48cc4cdf09",
+      "rule": "javascript:S7721",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/components/AppLayout.jsx",
+      "project": "digital-Garden",
+      "line": 110,
+      "hash": "5deed6c62e4b43f338193db3a6aece08",
+      "textRange": {
+        "startLine": 110,
+        "endLine": 110,
+        "startOffset": 2,
+        "endOffset": 26
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Move function 'directLinkClass' to the outer scope.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "performance",
+        "optimization",
+        "editable-source",
+        "javascript"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "EFFICIENT",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "8c69fcfc-688d-4bec-9afe-f2567d03b824",
+      "rule": "javascript:S6819",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/components/ConfirmDialog.jsx",
+      "project": "digital-Garden",
+      "line": 16,
+      "hash": "d90c26198ff23a5c54f81269ceed5c01",
+      "textRange": {
+        "startLine": 16,
+        "endLine": 28,
+        "startOffset": 4,
+        "endOffset": 5
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <img alt=...> instead of the \"presentation\" role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "accessibility",
+        "react"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "4b695847-ac89-47a4-80dc-359222aa7059",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/components/GalleryImageForm.jsx",
+      "project": "digital-Garden",
+      "line": 155,
+      "hash": "0565200ceac22c3f40c3260afe0d0dff",
+      "textRange": {
+        "startLine": 155,
+        "endLine": 157,
+        "startOffset": 12,
+        "endOffset": 31
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "e1698178-9e0c-4e40-8a18-98914e0bb56d",
+      "rule": "css:S4666",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/index.css",
+      "project": "digital-Garden",
+      "line": 346,
+      "hash": "615f2f8d3adc8e8b11825163f466407a",
+      "textRange": {
+        "startLine": 346,
+        "endLine": 346,
+        "startOffset": 0,
+        "endOffset": 14
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Duplicate selector \".gallery-piece\", first used at line 316",
+      "effort": "1min",
+      "debt": "1min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "LOGICAL",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "60d65ab9-b716-4dab-be73-260093653722",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/GraphPage.jsx",
+      "project": "digital-Garden",
+      "line": 813,
+      "hash": "8c75ddd8fda33ab422e3ebdfb85392a3",
+      "textRange": {
+        "startLine": 813,
+        "endLine": 815,
+        "startOffset": 18,
+        "endOffset": 26
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "714f55bc-e036-4fa8-a1c1-4ecfa9bd81b8",
+      "rule": "javascript:S6819",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/NotesPage.jsx",
+      "project": "digital-Garden",
+      "line": 276,
+      "hash": "bc38758e6172b0db93523ee51ee8551c",
+      "textRange": {
+        "startLine": 276,
+        "endLine": 279,
+        "startOffset": 8,
+        "endOffset": 9
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <output> instead of the \"status\" role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "accessibility",
+        "react"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "0493f6f5-4121-4efd-a5a4-6fb07d168135",
+      "rule": "javascript:S6819",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/RelationsPage.jsx",
+      "project": "digital-Garden",
+      "line": 361,
+      "hash": "bc38758e6172b0db93523ee51ee8551c",
+      "textRange": {
+        "startLine": 361,
+        "endLine": 364,
+        "startOffset": 12,
+        "endOffset": 13
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <output> instead of the \"status\" role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "accessibility",
+        "react"
+      ],
+      "creationDate": "2026-09-24T05:27:01+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "6217544b-a1fc-41cf-8e0c-c9d40af05e3b",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/AdminPage.jsx",
+      "project": "digital-Garden",
+      "line": 137,
+      "hash": "c30f28b5b9349478ff33f76fcb3db3e0",
+      "textRange": {
+        "startLine": 137,
+        "endLine": 139,
+        "startOffset": 28,
+        "endOffset": 39
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "1cf99141-2ccd-49b2-aad3-7f728c6375b0",
+      "rule": "javascript:S6819",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/HomePage.jsx",
+      "project": "digital-Garden",
+      "line": 96,
+      "hash": "3ccf9b953193fa9c45337706504f916f",
+      "textRange": {
+        "startLine": 96,
+        "endLine": 96,
+        "startOffset": 14,
+        "endOffset": 111
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <output> instead of the \"status\" role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "accessibility",
+        "react"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "02bdc9a7-e994-47aa-b7b0-a9b43f622e2f",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/services/http.js",
+      "project": "digital-Garden",
+      "line": 32,
+      "hash": "0441f112ea0770e36d9fef8289ff99a4",
+      "textRange": {
+        "startLine": 32,
+        "endLine": 33,
+        "startOffset": 4,
+        "endOffset": 88
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "577d8093-d0ad-49eb-ba04-4c23c1f9af75",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/services/http.js",
+      "project": "digital-Garden",
+      "line": 33,
+      "hash": "1ad1210845afc87d8e92a85d8e38db4e",
+      "textRange": {
+        "startLine": 33,
+        "endLine": 33,
+        "startOffset": 6,
+        "endOffset": 88
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "2ef4476a-feb7-45f0-8a7b-bf2db0f43a3d",
+      "rule": "javascript:S3776",
+      "severity": "CRITICAL",
+      "component": "digital-Garden:client/src/utils/validation.js",
+      "project": "digital-Garden",
+      "line": 1,
+      "hash": "02ef74960f62adf25e36018e2a24667c",
+      "textRange": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 16,
+        "endOffset": 29
+      },
+      "flows": [
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 2,
+                "endLine": 2,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 8,
+                "endLine": 8,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 10,
+                "endLine": 10,
+                "startOffset": 4,
+                "endOffset": 6
+              },
+              "msg": "+2 (incl. 1 for nesting)",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 10,
+                "endLine": 10,
+                "startOffset": 37,
+                "endOffset": 38
+              },
+              "msg": "+3 (incl. 2 for nesting)",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 11,
+                "endLine": 11,
+                "startOffset": 4,
+                "endOffset": 6
+              },
+              "msg": "+2 (incl. 1 for nesting)",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 14,
+                "endLine": 14,
+                "startOffset": 4,
+                "endOffset": 6
+              },
+              "msg": "+2 (incl. 1 for nesting)",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 20,
+                "endLine": 20,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 20,
+                "endLine": 20,
+                "startOffset": 21,
+                "endOffset": 23
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 21,
+                "endLine": 21,
+                "startOffset": 51,
+                "endOffset": 52
+              },
+              "msg": "+2 (incl. 1 for nesting)",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 23,
+                "endLine": 23,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 24,
+                "endLine": 24,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 24,
+                "endLine": 24,
+                "startOffset": 29,
+                "endOffset": 31
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 27,
+                "endLine": 27,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 27,
+                "endLine": 27,
+                "startOffset": 26,
+                "endOffset": 28
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 30,
+                "endLine": 30,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 30,
+                "endLine": 30,
+                "startOffset": 27,
+                "endOffset": 29
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "component": "digital-Garden:client/src/utils/validation.js",
+              "textRange": {
+                "startLine": 33,
+                "endLine": 33,
+                "startOffset": 2,
+                "endOffset": 4
+              },
+              "msg": "+1",
+              "msgFormattings": []
+            }
+          ]
+        }
+      ],
+      "status": "OPEN",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed.",
+      "effort": "13min",
+      "debt": "13min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "brain-overload",
+        "editable-source"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FOCUSED",
+      "cleanCodeAttributeCategory": "ADAPTABLE",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "b4f84ac0-54db-45d7-97fd-e79aaecd2f54",
+      "rule": "javascript:S8786",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/utils/validation.js",
+      "project": "digital-Garden",
+      "line": 24,
+      "hash": "d8811285a6d9059b0cec91a494c93fa1",
+      "textRange": {
+        "startLine": 24,
+        "endLine": 24,
+        "startOffset": 33,
+        "endOffset": 61
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.",
+      "effort": "20min",
+      "debt": "20min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "regex",
+        "performance"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "EFFICIENT",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "0f0d8946-f56c-45c0-b71f-7164bdba93d1",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:server/src/middleware/error.middleware.js",
+      "project": "digital-Garden",
+      "line": 65,
+      "hash": "ed49241c459482168ae5fe78723014e7",
+      "textRange": {
+        "startLine": 65,
+        "endLine": 67,
+        "startOffset": 6,
+        "endOffset": 21
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-23T08:23:15+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "c15217e6-513b-41f1-9339-8024261daa5a",
+      "rule": "javascript:S6772",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/DashboardPage.jsx",
+      "project": "digital-Garden",
+      "line": 193,
+      "hash": "c69beaef5754f6ae5636984909dcb101",
+      "textRange": {
+        "startLine": 193,
+        "endLine": 193,
+        "startOffset": 0,
+        "endOffset": 17
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Ambiguous spacing after previous element span",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "react"
+      ],
+      "creationDate": "2026-09-21T08:23:27+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FORMATTED",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        },
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "cca535da-1f02-42fb-bbf3-d6be088fe7c1",
+      "rule": "javascript:S6772",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/ProfilePage.jsx",
+      "project": "digital-Garden",
+      "line": 375,
+      "hash": "18f68d13217048286fcb813f5c627bc0",
+      "textRange": {
+        "startLine": 375,
+        "endLine": 375,
+        "startOffset": 0,
+        "endOffset": 14
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Ambiguous spacing after previous element input",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "react"
+      ],
+      "creationDate": "2026-09-21T08:23:27+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "FORMATTED",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        },
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "6c140bb9-0745-4d99-b1a3-432abb0a9c9c",
+      "rule": "javascript:S3358",
+      "severity": "MAJOR",
+      "component": "digital-Garden:client/src/pages/ProfilePage.jsx",
+      "project": "digital-Garden",
+      "line": 389,
+      "hash": "bfcd4690c79dac68e0c964f1ded05247",
+      "textRange": {
+        "startLine": 389,
+        "endLine": 391,
+        "startOffset": 16,
+        "endOffset": 32
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "editable-source",
+        "confusing"
+      ],
+      "creationDate": "2026-09-21T08:23:27+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "2786fe23-8435-4855-a29c-a7e5d51aad61",
+      "rule": "javascript:S7776",
+      "severity": "MINOR",
+      "component": "digital-Garden:server/src/middleware/upload.middleware.js",
+      "project": "digital-Garden",
+      "line": 3,
+      "hash": "4192fdab334a5de4a71f1ba51d55ff20",
+      "textRange": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 6,
+        "endOffset": 22
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "`allowedMimeTypes` should be a `Set`, and use `allowedMimeTypes.has()` to check existence or non-existence.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "performance",
+        "es2015",
+        "optimization",
+        "editable-source"
+      ],
+      "creationDate": "2026-09-18T08:44:39+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": true,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "EFFICIENT",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "ec151e41-8e5a-4246-8885-4c83d78a568e",
+      "rule": "javascript:S7776",
+      "severity": "MINOR",
+      "component": "digital-Garden:server/src/controllers/note.controller.js",
+      "project": "digital-Garden",
+      "line": 9,
+      "hash": "4e3e37aa54aa0b869e17c7735bd662c7",
+      "textRange": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 6,
+        "endOffset": 20
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "`VALID_MATURITY` should be a `Set`, and use `VALID_MATURITY.has()` to check existence or non-existence.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "performance",
+        "es2015",
+        "optimization",
+        "editable-source"
+      ],
+      "creationDate": "2026-09-16T07:48:20+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": true,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "EFFICIENT",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "a673d928-01f8-46ac-9e86-0e2196f2889a",
+      "rule": "javascript:S8786",
+      "severity": "MAJOR",
+      "component": "digital-Garden:server/src/validators/auth.validator.js",
+      "project": "digital-Garden",
+      "line": 1,
+      "hash": "b18fcdaba5710ac63fee32185f515904",
+      "textRange": {
+        "startLine": 1,
+        "endLine": 1,
+        "startOffset": 22,
+        "endOffset": 50
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.",
+      "effort": "20min",
+      "debt": "20min",
+      "author": "isabellavazquez1210@gmail.com",
+      "tags": [
+        "regex",
+        "performance"
+      ],
+      "creationDate": "2026-09-11T08:19:24+0000",
+      "updateDate": "2026-09-24T10:36:54+0000",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "EFFICIENT",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    }
+  ],
+  "components": [
+    {
+      "key": "digital-Garden:server/src/controllers/note.controller.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "note.controller.js",
+      "longName": "server/src/controllers/note.controller.js",
+      "path": "server/src/controllers/note.controller.js"
+    },
+    {
+      "key": "digital-Garden:client/src/components/GalleryImageForm.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "GalleryImageForm.jsx",
+      "longName": "client/src/components/GalleryImageForm.jsx",
+      "path": "client/src/components/GalleryImageForm.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/HomePage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "HomePage.jsx",
+      "longName": "client/src/pages/HomePage.jsx",
+      "path": "client/src/pages/HomePage.jsx"
+    },
+    {
+      "key": "digital-Garden",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Digital Garden",
+      "longName": "Digital Garden"
+    },
+    {
+      "key": "digital-Garden:client/src/services/http.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "http.js",
+      "longName": "client/src/services/http.js",
+      "path": "client/src/services/http.js"
+    },
+    {
+      "key": "digital-Garden:client/src/utils/validation.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "validation.js",
+      "longName": "client/src/utils/validation.js",
+      "path": "client/src/utils/validation.js"
+    },
+    {
+      "key": "digital-Garden:client/src/components/ConfirmDialog.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ConfirmDialog.jsx",
+      "longName": "client/src/components/ConfirmDialog.jsx",
+      "path": "client/src/components/ConfirmDialog.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/PublicGardenPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "PublicGardenPage.jsx",
+      "longName": "client/src/pages/PublicGardenPage.jsx",
+      "path": "client/src/pages/PublicGardenPage.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/DashboardPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "DashboardPage.jsx",
+      "longName": "client/src/pages/DashboardPage.jsx",
+      "path": "client/src/pages/DashboardPage.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/index.css",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "index.css",
+      "longName": "client/src/index.css",
+      "path": "client/src/index.css"
+    },
+    {
+      "key": "digital-Garden:server/src/middleware/error.middleware.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "error.middleware.js",
+      "longName": "server/src/middleware/error.middleware.js",
+      "path": "server/src/middleware/error.middleware.js"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/AdminPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AdminPage.jsx",
+      "longName": "client/src/pages/AdminPage.jsx",
+      "path": "client/src/pages/AdminPage.jsx"
+    },
+    {
+      "key": "digital-Garden:server/src/middleware/upload.middleware.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "upload.middleware.js",
+      "longName": "server/src/middleware/upload.middleware.js",
+      "path": "server/src/middleware/upload.middleware.js"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/ProfilePage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ProfilePage.jsx",
+      "longName": "client/src/pages/ProfilePage.jsx",
+      "path": "client/src/pages/ProfilePage.jsx"
+    },
+    {
+      "key": "digital-Garden:server/src/validators/auth.validator.js",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "auth.validator.js",
+      "longName": "server/src/validators/auth.validator.js",
+      "path": "server/src/validators/auth.validator.js"
+    },
+    {
+      "key": "digital-Garden:client/src/components/AppLayout.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AppLayout.jsx",
+      "longName": "client/src/components/AppLayout.jsx",
+      "path": "client/src/components/AppLayout.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/RelationsPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "RelationsPage.jsx",
+      "longName": "client/src/pages/RelationsPage.jsx",
+      "path": "client/src/pages/RelationsPage.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/GraphPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "GraphPage.jsx",
+      "longName": "client/src/pages/GraphPage.jsx",
+      "path": "client/src/pages/GraphPage.jsx"
+    },
+    {
+      "key": "digital-Garden:client/src/pages/NotesPage.jsx",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NotesPage.jsx",
+      "longName": "client/src/pages/NotesPage.jsx",
+      "path": "client/src/pages/NotesPage.jsx"
+    }
+  ],
+  "facets": []
+}
