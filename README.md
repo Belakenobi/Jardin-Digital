@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/favicon.png" alt="Digital Garden Logo" width="150">
+  <img src="client/public/favicon.png" alt="Digital Garden Logo" width="150">
 </p>
 
 <h1 align="center">🌱 Digital Garden</h1>
