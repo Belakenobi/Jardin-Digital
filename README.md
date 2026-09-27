@@ -1,83 +1,107 @@
-# Digital Garden
+<p align="center">
+  <img src="docs/assets/favicon.png" alt="Digital Garden Logo" width="150">
+</p>
 
-Aplicación web para cultivar conocimiento personal mediante notas, relaciones e imágenes. Las ideas evolucionan de **semilla 🌱** a **brote 🌿** y **árbol 🌳**.
+<h1 align="center">🌱 Digital Garden</h1>
 
-## Estado actual
+<p align="center">
+  <strong>Cultiva ideas. Conecta pensamientos. Observa cómo crece tu conocimiento.</strong>
+</p>
 
-Actualizado al **23 de septiembre de 2026**. Módulos **0–11 implementados**, incluidos el frontend, el grafo interactivo, la experiencia pública y el panel administrativo básico. El frontend compila y pasa ESLint; además existe una primera suite automatizada de validación y manejo HTTP. La cobertura >=80 % y la suite integral con Jest/Supertest siguen pendientes.
+<p align="center">
+  Aplicación web full stack para organizar conocimiento personal mediante notas,
+  relaciones, imágenes y un grafo interactivo.
+</p>
 
-- Registro, login, rutas protegidas y sesión persistida en el navegador, con renovación de tokens ante respuestas `401` y cierre local de sesión.
-- Dashboard con resumen del jardín, conteos por madurez y notas recientes.
-- Creación del jardín y edición de perfil, nombre, descripción y visibilidad.
-- CRUD de notas con filtro por madurez; creación, consulta y eliminación de relaciones y backlinks.
-- Galería privada: carga de JPG, PNG y WEBP (hasta 5 MiB), edición de descripción/asociación con notas y eliminación.
-- Grafo protegido con React Flow y distribución mediante d3-force: notas por madurez, relaciones dirigidas, zoom, arrastre y resaltado de conexiones/backlinks.
-- Imágenes asociadas como nodos del grafo, con miniaturas y panel de detalle; navegación desde la vista previa a la nota completa resaltada.
-- Inicio público con listado de hasta seis jardines públicos, conteos por madurez y lectura de notas/relaciones sin iniciar sesión. Los jardines privados responden como no disponibles.
-- Panel administrativo protegido por JWT y rol `admin`, con estadísticas generales y listado de usuarios, roles, jardines y visibilidad.
-- Interfaz adaptable con estados de carga, mensajes en español, validación accesible de formularios y confirmación de eliminaciones.
-- Pruebas iniciales con `node:test` para validaciones del cliente/backend, manejo de errores y renovación de sesión.
+---
 
-**Siguiente:** Módulo 12 — ampliar las pruebas automatizadas y medir cobertura >=80 %. También quedan pendientes registrar la validación funcional integral en navegador del frontend, grafo, vistas públicas y panel administrativo; CI/CD, despliegue y evaluaciones de seguridad/calidad.
+## 🌿 Sobre Digital Garden
 
-El grafo reutiliza la API existente y muestra solo imágenes vinculadas a notas. Las posiciones se conservan en memoria; las relaciones se administran desde su módulo. Build, lint y suites iniciales comprobados el 23 de septiembre; Vite advierte de un archivo JavaScript principal de 525,35 kB minificado, pendiente de optimización.
+**Digital Garden** nace de la idea de que no todos nuestros pensamientos aparecen terminados.
 
-## Stack y estructura
+A veces una frase, una palabra o un título son suficientes para comenzar algo que puede crecer con el tiempo.
 
-- `client/`: React 19, Vite 8, Tailwind CSS 4, React Router, React Flow (`@xyflow/react`) y `d3-force`.
-- `server/`: API REST con Node.js, Express y Multer; Docker con Node.js 24 Alpine.
-- `supabase/migrations/`: PostgreSQL, restricciones y políticas RLS. Supabase también proporciona Auth y Storage.
-- `docs/`: espacio para evidencias, pruebas y calidad.
-- [Bitácora de desarrollo](BITACORA_DESARROLLO.md): historial, decisiones y validaciones.
+Por ello, las notas evolucionan mediante tres estados:
 
-El frontend consume la API; Express valida identidad, permisos y reglas de negocio con JWT y un cliente Supabase sujeto a RLS.
+- 🌱 **Semilla** — una idea inicial.
+- 🌿 **Brote** — una idea en desarrollo.
+- 🌳 **Árbol** — una idea madura.
 
-## Desarrollo local
+Además de almacenar contenido, Digital Garden permite **relacionar ideas, consultar backlinks y visualizar el conocimiento mediante un grafo interactivo**, transformando una colección de notas en una representación más cercana a la forma en que conectamos nuestros pensamientos.
 
-Usar Node.js 24 y npm. Configurar un proyecto Supabase con la migración de `supabase/migrations/` y el bucket privado descrito abajo.
+---
 
-Backend:
+## ✨ Funcionalidades
 
-```sh
-cd server
-cp .env.example .env
-npm ci
-npm run dev
-```
+- 🔐 Registro, login y autenticación mediante JWT.
+- 👥 Roles `user` y `admin`.
+- 🌱 Jardín personal público o privado.
+- 📝 CRUD completo de notas.
+- 🌿 Estados de madurez: Semilla, Brote y Árbol.
+- 🔗 Relaciones entre notas y backlinks.
+- 🧠 Grafo interactivo del conocimiento.
+- 🖼️ Galería privada con Supabase Storage.
+- 🌎 Exploración pública de jardines.
+- 🛡️ Panel administrativo protegido por rol.
+- ✅ Validaciones y manejo de errores.
+- 🧪 Pruebas automatizadas y cobertura.
+- 🚀 CI/CD y despliegue automático.
 
-Completar las variables Supabase de `server/.env`. La API usa `http://localhost:4000/api` y permite por defecto el origen `http://localhost:5173` mediante `CLIENT_URL`.
+---
 
-Frontend, en otra terminal:
+## 🌐 Demo
 
-```sh
-cd client
-cp .env.example .env
-npm ci
-npm run dev
-```
+### Frontend
+**https://digital-garden-web.onrender.com**
 
-Configurar `VITE_API_URL=http://localhost:4000/api`. Las variables `VITE_SUPABASE_*` de la plantilla no se usan en el cliente actual. Para verificarlo, ejecutar `npm run build` y `npm run lint` desde `client/`.
+### Backend API
+**https://digital-garden-api-f563.onrender.com**
 
-Las pruebas iniciales se ejecutan con `npm test` tanto en `client/` como en `server/`. Estas pruebas todavía no generan cobertura ni sustituyen la suite Jest/Supertest requerida para el cierre.
+> La base de datos, autenticación y almacenamiento utilizan **Supabase Cloud**.
 
-## Acceso público y administración
+---
 
-- `GET /api/public/gardens`: lista hasta seis jardines públicos con autoría y conteos por madurez.
-- `GET /api/public/gardens/:gardenId`: devuelve jardín, autoría, notas y relaciones únicamente si el jardín continúa público.
-- `GET /api/admin/summary`: estadísticas globales del sistema.
-- `GET /api/admin/users`: usuarios con rol y jardín asociado.
+## 🛠️ Tecnologías
 
-Las rutas públicas no necesitan sesión. Las administrativas requieren un JWT válido y rol `admin`; el enlace del panel solo aparece para ese rol, pero la autorización real también se aplica en Express. El panel es de consulta: no bloquea usuarios ni modifica roles.
+| Área | Tecnologías |
+|---|---|
+| Frontend | React, Vite, Tailwind CSS |
+| Grafo | React Flow, d3-force |
+| Backend | Node.js, Express |
+| Base de datos | PostgreSQL |
+| Cloud | Supabase |
+| Autenticación | Supabase Auth + JWT |
+| Storage | Supabase Storage |
+| Testing | Jest, Supertest |
+| Calidad | ESLint, SonarQube |
+| Seguridad | OWASP ZAP |
+| DevOps | Docker, GitHub Actions |
+| Deploy | Render |
 
-## Galería y sesión
+---
 
-Crear manualmente el bucket privado `gallery` en Supabase, con límite de 5 MB y MIME `image/jpeg`, `image/png`, `image/webp`. Sus políticas de `storage.objects` para `authenticated` deben permitir INSERT (`WITH CHECK`), SELECT y DELETE (`USING`) con esta condición:
+## 🏗️ Arquitectura
 
-```sql
-bucket_id = 'gallery'
-AND (storage.foldername(name))[1] = auth.uid()::text
-```
-
-El bucket y sus políticas de Storage aún no tienen migración. La API recibe el archivo en el campo multipart `image` y devuelve URLs firmadas de una hora al listar. Storage y PostgreSQL se actualizan en operaciones separadas.
-
-La sesión se guarda en `localStorage` (`dg_session`); el cliente solicita `POST /api/auth/refresh` para renovarla. Cerrar sesión elimina los datos locales, sin revocación remota. Nunca versionar archivos `.env` ni exponer `SUPABASE_SECRET_KEY` al frontend.
+```text
+              ┌─────────────────────┐
+              │       React         │
+              │    Vite + UI        │
+              └──────────┬──────────┘
+                         │
+                    HTTP / JSON
+                         │
+              ┌──────────▼──────────┐
+              │   Node.js / Express │
+              │      REST API       │
+              ├─────────────────────┤
+              │ Auth · Roles · RLS  │
+              │ Validación · Lógica │
+              └──────────┬──────────┘
+                         │
+              ┌──────────▼──────────┐
+              │      Supabase       │
+              ├─────────────────────┤
+              │ PostgreSQL          │
+              │ Auth                │
+              │ Storage             │
+              └─────────────────────┘
